@@ -1,0 +1,342 @@
+/* ---------- Section layout: 12-col editorial grid (used by ProjectCardSection) ---------- */
+.pcs__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 2rem;
+  row-gap: clamp(3rem, 7vw, 6rem);
+  align-items: start;
+}
+.pcs__item {
+  grid-column: var(--pcs-col) / span var(--pcs-span);
+  margin-top: var(--pcs-dy, 0);
+}
+@media (max-width: 720px) {
+  .pcs__grid { display: flex; flex-direction: column; gap: 3rem; }
+  .pcs__item { width: min(88%, 26rem); margin-top: 0; align-self: flex-start; }
+  .pcs__item:nth-child(even) { align-self: flex-end; }
+}
+
+/* ---------- Card: stage -> pose (continuous spin) -> tilt -> flip -> faces ---------- */
+.pc {
+  --pc-ink: var(--ink, #151515);
+  --pc-ease: cubic-bezier(0.65, 0.05, 0.2, 1);
+  --pc-ms: 720ms;
+  --nx: 0;
+  --ny: 0;
+  --pc-depth: clamp(3px, calc(var(--pc-w, 300px) * 0.013), 7px);
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--pc-ratio, 1.586);
+  perspective: 1400px;
+  transform: rotate(calc(var(--pc-rot, 0) * 1deg)); /* flat resting tilt, kept off the 3D layers */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Layer 1: continuous spin (set per frame by the marquee, so no transition here).
+   rotate3d on a tilted axis (not a pure 0,1,0) so the turn reads as an oblique tumble
+   rather than a flat lazy-Susan spin — closer to a card turning in someone's hand. */
+.pc__pose {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotate3d(0.16, 1, 0.09, calc(var(--spin, 0) * 1deg));
+}
+
+/* Layer 2: cursor tilt + lift */
+.pc__tilt {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(var(--ny) * -15deg)) rotateY(calc(var(--nx) * 22deg)) rotateZ(calc(var(--nx) * -1.5deg)) translateZ(var(--lift, 0px));
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
+}
+.pc[data-tracking='true'] .pc__tilt { transition-duration: 0.16s; transition-timing-function: ease-out; }
+
+/* Layer 3: the flip itself */
+.pc__flip {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform var(--pc-ms) var(--pc-ease);
+  will-change: transform;
+}
+.pc[data-flipped='true'] .pc__flip { transform: rotateY(180deg); }
+
+/* Faces */
+.pc__face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 6px;
+  container-type: inline-size; /* all type and spacing scales with card width (cqi) */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.pc__face--front {
+  background: var(--pc-tone, #e9e6df);
+  color: var(--pc-ink);
+  transform: translateZ(0.5px);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.06);
+}
+.pc__face--back {
+  background: var(--pc-ink);
+  color: #f5f3ee;
+  transform: rotateY(180deg) translateZ(0.5px);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+}
+.pc[data-flipped='false'] .pc__face--back,
+.pc[data-flipped='true'] .pc__face--front { pointer-events: none; }
+
+/* ---------- Edges: real thickness, not a painted illusion. Two thin panels standing
+   at the card's left and right, rotated into the depth axis so the card has an actual
+   side to show as it turns edge-on — this is what makes the spin read as a 3D object
+   instead of a flat image swinging on a hinge. ---------- */
+.pc__edge {
+  position: absolute;
+  top: 0;
+  left: calc(50% - var(--pc-depth, 6px) / 2);
+  width: var(--pc-depth, 6px);
+  height: 100%;
+  border-radius: 6px; /* matches .pc__face so the corner doesn't read as a squared-off slab */
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--pc-ink) 45%, #fff 25%),
+    color-mix(in srgb, var(--pc-ink) 85%, #000 25%)
+  );
+}
+.pc__edge--right { transform: rotateY(90deg) translateZ(calc(var(--pc-w, 300px) / 2)); }
+.pc__edge--left { transform: rotateY(-90deg) translateZ(calc(var(--pc-w, 300px) / 2)); }
+
+/* Full-face hit area: the whole card flips, the CTA link sits above it */
+.pc__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.pc__hit:focus-visible { outline: 2px solid currentColor; outline-offset: -8px; }
+
+/* ---------- Front ---------- */
+.pc__art { position: absolute; pointer-events: none; }
+.pc[data-shape='landscape'] .pc__art { left: 6cqi; top: 6cqi; width: 88cqi; }
+.pc[data-shape='portrait'] .pc__art { left: 30cqi; top: 6cqi; width: 64cqi; }
+.pc[data-shape='square'] .pc__art { left: 22cqi; top: 6cqi; width: 72cqi; }
+.pc[data-shape='arch'] .pc__art { left: 17cqi; top: 8cqi; width: 66cqi; }
+.pc[data-shape='pill'] .pc__art { left: 6cqi; top: 8cqi; width: 88cqi; }
+.pc[data-shape='cut'] .pc__art { left: 6cqi; top: 6cqi; width: 84cqi; }
+
+.pc__caption {
+  position: absolute;
+  left: 6cqi;
+  right: 6cqi;
+  bottom: 5.5cqi;
+  display: grid;
+  gap: 1.6cqi;
+  pointer-events: none;
+}
+.pc__name {
+  margin: 0;
+  font-size: 1.15rem;
+  font-size: 6.4cqi;
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+.pc__sub {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  font-size: 0.8rem;
+  font-size: 3.6cqi;
+  opacity: 0.7;
+}
+
+/* ---------- Image treatment (shared by front + back mark) ---------- */
+.pc-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--pc-ink) 14%, var(--pc-tone, #e9e6df));
+}
+.pc-frame[data-shape='landscape'] { aspect-ratio: 8 / 5; border-radius: 3px; }
+.pc-frame[data-shape='portrait'] { aspect-ratio: 2 / 3; border-radius: 2px; }
+.pc-frame[data-shape='square'] { aspect-ratio: 1; border-radius: 14%; }
+.pc-frame[data-shape='arch'] { aspect-ratio: 3 / 4; border-radius: 999px 999px 3px 3px; }
+.pc-frame[data-shape='pill'] { aspect-ratio: 2 / 1; border-radius: 999px; }
+.pc-frame[data-shape='cut'] {
+  aspect-ratio: 8 / 5;
+  clip-path: polygon(0 5%, 94% 0, 100% 92%, 6% 100%);
+}
+.pc-frame img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform: translate3d(calc(var(--nx) * -10px), calc(var(--ny) * -10px), 0) scale(1.12); /* parallax */
+  transition: transform 0.3s ease-out;
+}
+
+/* ---------- Back ---------- */
+.pc__info {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 4cqi;
+  padding: 7cqi;
+  pointer-events: none; /* clicks fall through to .pc__hit, except the CTA */
+}
+.pc__head { display: flex; justify-content: space-between; align-items: flex-start; }
+.pc__mark { width: 18cqi; flex: none; }
+.pc__meta {
+  display: grid;
+  gap: 0.5cqi;
+  margin: 0;
+  text-align: right;
+  font-size: 0.8rem;
+  font-size: 3.6cqi;
+  color: rgb(245 243 238 / 0.7);
+}
+.pc__title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-size: 9cqi;
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+}
+.pc__desc {
+  margin: 0;
+  font-size: 0.9rem;
+  font-size: 4.3cqi;
+  line-height: 1.4;
+  color: rgb(245 243 238 / 0.76);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+.pc__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.6cqi;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.75rem;
+  font-size: 3.5cqi;
+}
+.pc__tools li {
+  padding: 0.8cqi 2.6cqi;
+  border: 1px solid rgb(245 243 238 / 0.3);
+  border-radius: 999px;
+}
+.pc__cta {
+  margin-top: auto;
+  align-self: flex-start;
+  pointer-events: auto;
+  padding: 3cqi 4.5cqi;
+  border-radius: 3px;
+  background: var(--pc-tone, #e9e6df);
+  color: var(--pc-ink);
+  font-size: 0.9rem;
+  font-size: 4cqi;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.pc__cta:hover { background: #fff; }
+.pc__cta:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* Short (landscape) cards: no mark, tighter copy */
+.pc[data-compact='true'] .pc__mark { display: none; }
+.pc[data-compact='true'] .pc__meta { flex-direction: row; display: flex; justify-content: space-between; width: 100%; text-align: left; }
+.pc[data-compact='true'] .pc__info { gap: 3cqi; }
+.pc[data-compact='true'] .pc__title { font-size: 8cqi; }
+.pc[data-compact='true'] .pc__desc { -webkit-line-clamp: 4; }
+
+/* ---------- Shine: a soft band of light sweeping across the card as it spins, plus a
+   brighter glint that follows the cursor on hover. This is what sells "physical, reflective
+   card" now that there's no drop shadow doing that job. ---------- */
+.pc__face::before,
+.pc__face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.pc__face::before {
+  background: repeating-linear-gradient(
+    115deg,
+    transparent 0 46px,
+    rgb(255 255 255 / 0.55) 46px 66px,
+    transparent 66px 168px
+  );
+  /* driven straight off --spin: continuous and never resets, so the sweep never jumps */
+  background-position: calc(var(--spin, 0) * -1.15px) 0;
+  mix-blend-mode: overlay;
+  opacity: 0.85;
+}
+.pc__face--back::before { mix-blend-mode: soft-light; opacity: 0.6; }
+
+.pc__face::after {
+  background: radial-gradient(
+    260px circle at calc(50% + var(--nx, 0) * 38%) calc(50% + var(--ny, 0) * 38%),
+    rgb(255 255 255 / 0.65),
+    transparent 62%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  mix-blend-mode: overlay;
+}
+.pc[data-tracking='true'] .pc__face::after { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .pc:not([data-tracking='true']):hover .pc__face::after { opacity: 0.5; }
+}
+
+/* ---------- States (order matters: hover < press < flipping) ---------- */
+@media (hover: hover) and (pointer: fine) {
+  .pc:hover .pc__tilt { --lift: 44px; }
+}
+.pc:active .pc__tilt { --lift: -8px; } /* touch press */
+.pc[data-flipping='true'] .pc__tilt { --lift: 50px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pc__tilt, .pc__flip, .pc-frame img, .pc__face::before { transition: none; }
+}
+
+/* ---------- Marquee: one centred row, looping right to left ---------- */
+.pcm {
+  position: relative;
+  width: 100%;
+  height: clamp(20rem, 46vw, 26rem);
+  overflow: hidden;
+  touch-action: pan-y;
+}
+.pcm__track { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
+.pcm__item { position: absolute; left: 0; top: 50%; will-change: transform; }
+.pcm__item:hover,
+.pcm__item:has([data-flipped='true']) { z-index: 2; }
+
+/* Reduced motion: no loop, just a centred wrapped row */
+.pcm--static { height: auto; overflow: visible; padding-block: 3rem; }
+.pcm--static .pcm__track { position: static; display: flex; flex-wrap: wrap; justify-content: center; gap: 3rem; }
+.pcm--static .pcm__item { position: static; }
