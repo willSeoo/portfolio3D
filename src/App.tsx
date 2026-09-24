@@ -1,9 +1,5 @@
-import { ProjectCardScene } from './components/project-card-3d'
+import { SpinCardScene } from './components/spin-card'
 
 export default function App() {
-  return (
-    <main style={{ minHeight: '100vh', display: 'grid', alignContent: 'center', background: '#f4f2ee' }}>
-      <ProjectCardScene />
-    </main>
-  )
+  return <SpinCardScene />
 }
