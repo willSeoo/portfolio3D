@@ -1,5 +1,5 @@
-import { SpinCardScene } from './components/spin-card'
+import { ShowcaseScene } from './components/showcase/ShowcaseScene'
 
 export default function App() {
-  return <SpinCardScene />
+  return <ShowcaseScene />
 }

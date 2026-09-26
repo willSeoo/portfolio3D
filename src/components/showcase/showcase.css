@@ -1,0 +1,206 @@
+.sc-root {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: #f4f2ee;
+  overflow: hidden;
+  font-family: system-ui, sans-serif;
+  --ink: #151515;
+  color: var(--ink);
+}
+
+.sc-stage {
+  position: absolute;
+  inset: 0;
+  bottom: 6.5rem; /* leave room for the caption bar */
+  will-change: transform, opacity;
+}
+.sc-stage canvas {
+  touch-action: none;
+}
+
+.sc-embed-wrapper {
+  position: absolute;
+  inset: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.sc-embed-iframe {
+  width: min(100%, 900px);
+  height: 100%;
+  border-radius: 12px;
+  background: #10131a;
+}
+.sc-embed-credit {
+  font-size: 0.75rem;
+  color: #4a4a4a;
+  margin: 0;
+}
+.sc-embed-credit a {
+  font-weight: 600;
+  color: #1caad9;
+  text-decoration: none;
+}
+
+.sc-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+/* ---------- Arrows ---------- */
+.sc-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  border: none;
+  background: rgba(21, 21, 21, 0.06);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  z-index: 5;
+}
+.sc-arrow:hover {
+  background: rgba(21, 21, 21, 0.12);
+  transform: translateY(-50%) scale(1.06);
+}
+.sc-arrow:active {
+  transform: translateY(-50%) scale(0.94);
+}
+.sc-arrow--left {
+  left: clamp(0.75rem, 3vw, 2.5rem);
+}
+.sc-arrow--right {
+  right: clamp(0.75rem, 3vw, 2.5rem);
+}
+
+/* ---------- Caption ---------- */
+.sc-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(1.25rem, 5vw, 4rem);
+  gap: 1.5rem;
+}
+.sc-caption__text h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+.sc-caption__text p {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  opacity: 0.6;
+}
+.sc-caption__cta {
+  flex: none;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(21, 21, 21, 0.15);
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.sc-caption__cta:hover {
+  background: #151515;
+  color: #fff;
+}
+.sc-caption__cta:active {
+  transform: scale(0.96);
+}
+
+/* ---------- Popup ---------- */
+.sc-popup__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 15, 0.45);
+  display: grid;
+  place-items: center;
+  z-index: 10;
+  animation: sc-fade-in 0.18s ease;
+}
+.sc-popup {
+  width: min(90vw, 22rem);
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.75rem;
+  text-align: center;
+  animation: sc-pop-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sc-popup__eyebrow {
+  margin: 0 0 0.3rem;
+  font-size: 0.75rem;
+  opacity: 0.55;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.sc-popup h3 {
+  margin: 0 0 0.6rem;
+  font-size: 1.3rem;
+}
+.sc-popup__prompt {
+  margin: 0 0 1.4rem;
+  font-size: 0.95rem;
+  opacity: 0.75;
+}
+.sc-popup__actions {
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+}
+.sc-popup__btn {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 999px;
+  border: 1.5px solid currentColor;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: none;
+  transition: transform 0.15s, background 0.2s;
+}
+.sc-popup__btn:active {
+  transform: scale(0.92);
+}
+.sc-popup__btn--x {
+  color: #d64545;
+}
+.sc-popup__btn--x:hover {
+  background: rgba(214, 69, 69, 0.08);
+}
+.sc-popup__btn--o {
+  color: #2f8f5b;
+}
+.sc-popup__btn--o:hover {
+  background: rgba(47, 143, 91, 0.08);
+}
+
+@keyframes sc-fade-in {
+  from { opacity: 0; }
+}
+@keyframes sc-pop-in {
+  from { opacity: 0; transform: scale(0.9) translateY(8px); }
+}
+
+@media (max-width: 640px) {
+  .sc-caption { flex-direction: column; align-items: flex-start; justify-content: center; gap: 0.6rem; height: auto; padding: 1rem 1.25rem 1.25rem; }
+  .sc-stage { bottom: 6.5rem; }
+}
