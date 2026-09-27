@@ -6,6 +6,7 @@ import { ArrowButton } from './ArrowButton'
 import { Caption } from './Caption'
 import { ConfirmPopup } from './ConfirmPopup'
 import './showcase.css'
+import { PhotoShowcase } from './PhotoShowcase'
 import { SketchfabEmbed } from './SketchfabEmbed'
 import { ENTER_MS, LEAVE_MS, useCarousel } from './useCarousel'
 import { ModelStage } from './models/ModelStage'
@@ -22,21 +23,22 @@ export function ShowcaseScene() {
   useEffect(() => {
     if (phase === 'leaving') {
       setStyle({
-        transform: `translateX(${direction * -46}px) scale(0.86)`,
+        transform: `translateX(${direction * -60}px) scale(0.82) rotate(${direction * -3}deg)`,
         opacity: 0,
-        transition: `transform ${LEAVE_MS}ms cubic-bezier(.4,0,.7,.3), opacity ${LEAVE_MS}ms ease`,
+        transition: `transform ${LEAVE_MS}ms cubic-bezier(.5,0,.85,.15), opacity ${LEAVE_MS}ms ease-in`,
       })
     } else if (phase === 'entering') {
       setFlash(true)
-      const tf = window.setTimeout(() => setFlash(false), 170)
+      const tf = window.setTimeout(() => setFlash(false), 140)
       // snap to the incoming start position with no transition, then animate in next frame
-      setStyle({ transform: `translateX(${direction * 46}px) scale(0.86)`, opacity: 0, transition: 'none' })
+      setStyle({ transform: `translateX(${direction * 60}px) scale(0.82) rotate(${direction * 3}deg)`, opacity: 0, transition: 'none' })
       const raf1 = requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setStyle({
-            transform: 'translateX(0) scale(1)',
+            transform: 'translateX(0) scale(1) rotate(0deg)',
             opacity: 1,
-            transition: `transform ${ENTER_MS}ms cubic-bezier(.2,.8,.2,1), opacity ${ENTER_MS}ms ease`,
+            // "back" easing: overshoots slightly past scale(1) before settling — the snap/crunch
+            transition: `transform ${ENTER_MS}ms cubic-bezier(.34,1.56,.64,1), opacity ${Math.min(ENTER_MS, 160)}ms ease-out`,
           })
         })
       })
@@ -73,7 +75,9 @@ export function ShowcaseScene() {
     <div className="sc-root">
       <div className="sc-stage" style={style}>
         {item.kind === 'embed' ? (
-          <SketchfabEmbed item={item} />
+          <SketchfabEmbed item={item} onOpen={openPopup} />
+        ) : item.kind === 'photo' ? (
+          <PhotoShowcase item={item} onOpen={openPopup} />
         ) : (
           <Canvas dpr={[1, 2]} gl={{ antialias: true }} camera={{ position: [0, 0, 4.2], fov: 32 }}>
             <StudioEnvironment />
@@ -89,7 +93,7 @@ export function ShowcaseScene() {
       <ArrowButton direction="left" label="Previous" onClick={prev} />
       <ArrowButton direction="right" label="Next" onClick={next} />
 
-      <Caption item={item} onView={openPopup} />
+      <Caption item={item} />
 
       {popupOpen && <ConfirmPopup item={item} onClose={() => setPopupOpen(false)} />}
     </div>

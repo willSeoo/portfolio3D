@@ -26,7 +26,7 @@ function tone(freqFrom: number, freqTo: number, duration: number, opts: { type?:
   osc.frequency.setValueAtTime(freqFrom, start)
   osc.frequency.exponentialRampToValueAtTime(Math.max(freqTo, 1), start + duration)
   amp.gain.setValueAtTime(0, start)
-  amp.gain.linearRampToValueAtTime(gain, start + Math.min(0.012, duration * 0.3))
+  amp.gain.linearRampToValueAtTime(gain, start + Math.min(0.008, duration * 0.2))
   amp.gain.exponentialRampToValueAtTime(0.0001, start + duration)
   osc.connect(amp)
   amp.connect(c.destination)
@@ -34,21 +34,51 @@ function tone(freqFrom: number, freqTo: number, duration: number, opts: { type?:
   osc.stop(start + duration + 0.02)
 }
 
-/** Card switch — a quick pitch sweep, direction sets whether it rises or falls. */
+/** A short burst of filtered noise — the "thock" transient under a pitched blip. */
+function thock(duration: number, opts: { gain?: number; delay?: number; freq?: number } = {}) {
+  const c = getCtx()
+  if (!c) return
+  const { gain = 0.22, delay = 0, freq = 1400 } = opts
+  const start = c.currentTime + delay
+  const len = Math.max(1, Math.floor(c.sampleRate * duration))
+  const buffer = c.createBuffer(1, len, c.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len) // decaying noise
+  const src = c.createBufferSource()
+  src.buffer = buffer
+  const filter = c.createBiquadFilter()
+  filter.type = 'bandpass'
+  filter.frequency.value = freq
+  filter.Q.value = 0.9
+  const amp = c.createGain()
+  amp.gain.setValueAtTime(gain, start)
+  amp.gain.exponentialRampToValueAtTime(0.0001, start + duration)
+  src.connect(filter)
+  filter.connect(amp)
+  amp.connect(c.destination)
+  src.start(start)
+  src.stop(start + duration + 0.01)
+}
+
+/** Card switch — a crunchy, PSP-menu-ish "thock": noise transient + a short pitched click. */
 export function playSwitch(direction: 1 | -1) {
-  if (direction === 1) tone(320, 720, 0.14, { type: 'triangle', gain: 0.12 })
-  else tone(560, 260, 0.14, { type: 'triangle', gain: 0.12 })
+  thock(0.05, { gain: 0.26, freq: direction === 1 ? 1700 : 1200 })
+  if (direction === 1) tone(360, 620, 0.07, { type: 'square', gain: 0.09 })
+  else tone(520, 300, 0.07, { type: 'square', gain: 0.09 })
 }
 
 export function playOpen() {
-  tone(500, 900, 0.1, { type: 'sine', gain: 0.1 })
+  thock(0.035, { gain: 0.18, freq: 2000 })
+  tone(600, 950, 0.06, { type: 'square', gain: 0.08 })
 }
 
 export function playClose() {
-  tone(500, 320, 0.09, { type: 'sine', gain: 0.09 })
+  thock(0.035, { gain: 0.16, freq: 900 })
+  tone(500, 300, 0.06, { type: 'square', gain: 0.07 })
 }
 
 export function playConfirm() {
-  tone(520, 780, 0.09, { type: 'sine', gain: 0.13 })
-  tone(780, 1040, 0.13, { type: 'sine', gain: 0.11, delay: 0.07 })
+  thock(0.04, { gain: 0.2, freq: 1800 })
+  tone(560, 820, 0.07, { type: 'square', gain: 0.1 })
+  tone(820, 1080, 0.1, { type: 'square', gain: 0.09, delay: 0.06 })
 }

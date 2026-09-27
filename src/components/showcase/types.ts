@@ -29,4 +29,10 @@ export interface EmbedShowcaseItem extends ShowcaseItemBase {
   sourceUrl: string
 }
 
-export type ShowcaseItem = ModelShowcaseItem | EmbedShowcaseItem
+/** A plain photo in the same size/box style the embed slide used. */
+export interface PhotoShowcaseItem extends ShowcaseItemBase {
+  kind: 'photo'
+  src: string
+}
+
+export type ShowcaseItem = ModelShowcaseItem | EmbedShowcaseItem | PhotoShowcaseItem

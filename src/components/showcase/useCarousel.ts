@@ -4,8 +4,8 @@ import { playSwitch } from './sound'
 
 export type TransitionPhase = 'idle' | 'leaving' | 'entering'
 
-export const LEAVE_MS = 220
-export const ENTER_MS = 300
+export const LEAVE_MS = 130
+export const ENTER_MS = 240
 
 /** Index + the leave/enter transition state machine driving the stage's transform. */
 export function useCarousel() {

@@ -1,11 +1,6 @@
 import type { ShowcaseItem } from './types'
 
-interface Props {
-  item: ShowcaseItem
-  onView: () => void
-}
-
-export function Caption({ item, onView }: Props) {
+export function Caption({ item }: { item: ShowcaseItem }) {
   return (
     <div className="sc-caption">
       <div className="sc-caption__text">
@@ -14,9 +9,6 @@ export function Caption({ item, onView }: Props) {
           {item.category} · {item.year}
         </p>
       </div>
-      <button type="button" className="sc-caption__cta" onClick={onView}>
-        View case study →
-      </button>
     </div>
   )
 }

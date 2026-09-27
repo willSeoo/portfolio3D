@@ -45,6 +45,28 @@
   text-decoration: none;
 }
 
+.sc-photo {
+  width: min(100%, 900px);
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.sc-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+.sc-photo:hover img {
+  transform: scale(1.02);
+}
+
 .sc-flash {
   position: absolute;
   inset: 0;
@@ -53,29 +75,42 @@
   transition: opacity 160ms ease;
 }
 
-/* ---------- Arrows ---------- */
+/* ---------- Arrows: chunky, pressable "gamepad button" ---------- */
 .sc-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 3rem;
-  height: 3rem;
-  border-radius: 999px;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 18px;
   border: none;
-  background: rgba(21, 21, 21, 0.06);
-  color: var(--ink);
+  padding: 0;
+  background: #dcd9d1;
+  color: #2a2a2a;
+  cursor: pointer;
+  z-index: 5;
+  box-shadow: 0 4px 0 0 #aeaa9f, 0 6px 10px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.1s, transform 0.1s;
+}
+.sc-arrow__face {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
   display: grid;
   place-items: center;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
-  z-index: 5;
+  background: linear-gradient(180deg, #fbfaf7, #e4e1d8);
+  transition: transform 0.1s;
 }
-.sc-arrow:hover {
-  background: rgba(21, 21, 21, 0.12);
-  transform: translateY(-50%) scale(1.06);
+.sc-arrow:hover .sc-arrow__face {
+  background: linear-gradient(180deg, #ffffff, #ebe8de);
 }
 .sc-arrow:active {
-  transform: translateY(-50%) scale(0.94);
+  box-shadow: 0 1px 0 0 #aeaa9f, 0 2px 4px rgba(0, 0, 0, 0.12);
+  transform: translateY(-50%) translateY(3px);
+}
+.sc-arrow:focus-visible {
+  outline: 2px solid #2a2a2a;
+  outline-offset: 2px;
 }
 .sc-arrow--left {
   left: clamp(0.75rem, 3vw, 2.5rem);
@@ -107,25 +142,7 @@
   font-size: 0.85rem;
   opacity: 0.6;
 }
-.sc-caption__cta {
-  flex: none;
-  padding: 0.65rem 1.2rem;
-  border-radius: 999px;
-  border: 1px solid rgba(21, 21, 21, 0.15);
-  background: #fff;
-  color: var(--ink);
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
-}
-.sc-caption__cta:hover {
-  background: #151515;
-  color: #fff;
-}
-.sc-caption__cta:active {
-  transform: scale(0.96);
-}
+
 
 /* ---------- Popup ---------- */
 .sc-popup__backdrop {
@@ -203,4 +220,20 @@
 @media (max-width: 640px) {
   .sc-caption { flex-direction: column; align-items: flex-start; justify-content: center; gap: 0.6rem; height: auto; padding: 1rem 1.25rem 1.25rem; }
   .sc-stage { bottom: 6.5rem; }
+}
+
+.sc-embed-open {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.85);
+  color: #2f8f5b;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }

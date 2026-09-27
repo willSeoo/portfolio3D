@@ -10,7 +10,7 @@ import type { EmbedShowcaseItem } from './types'
  * why every slide, this one included, has its own "View case study" pill in
  * the caption below the stage as the reliable way to open the popup.
  */
-export function SketchfabEmbed({ item }: { item: EmbedShowcaseItem }) {
+export function SketchfabEmbed({ item, onOpen }: { item: EmbedShowcaseItem; onOpen: () => void }) {
   return (
     <div className="sc-embed-wrapper">
       <iframe
@@ -21,6 +21,11 @@ export function SketchfabEmbed({ item }: { item: EmbedShowcaseItem }) {
         src={item.embedUrl}
         className="sc-embed-iframe"
       />
+      <button type="button" className="sc-embed-open" onClick={onOpen} aria-label="View case study">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="2.4" />
+        </svg>
+      </button>
       <p className="sc-embed-credit">
         <a href={item.sourceUrl} target="_blank" rel="noreferrer noopener nofollow">
           {item.embedTitle}

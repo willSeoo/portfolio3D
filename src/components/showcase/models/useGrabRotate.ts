@@ -10,11 +10,14 @@ const DAMPING = 0.94
 const MIN_VELOCITY = 0.02
 const CLICK_DIST = 6 // px — under this, a pointerdown+up pair counts as a click, not a drag
 const CLICK_MS = 500
+const IDLE_DELAY = 500 // ms of being fully settled before the idle turn resumes
+const IDLE_SPEED = 0.16 // rad/sec — a slow, deliberate turn, not a spin
 
 /**
- * Grab-and-spin, same as the standalone spin card, plus a click callback:
- * release with barely any movement and quickly enough, and onClick fires
- * instead of leaving residual spin.
+ * Grab-and-spin: drag rotates the object freely on world axes, release lets
+ * it coast to a stop, and once it's been still for a moment it slowly turns
+ * on its own (paused instantly the moment it's grabbed again). Also reports
+ * a click (near-zero movement, released quickly) separately from a drag.
  */
 export function useGrabRotate(targetRef: RefObject<THREE.Object3D | null>, onClick: () => void) {
   const dragging = useRef(false)
@@ -23,11 +26,12 @@ export function useGrabRotate(targetRef: RefObject<THREE.Object3D | null>, onCli
   const moved = useRef(0)
   const velocity = useRef({ x: 0, y: 0 })
   const quat = useRef(new THREE.Quaternion())
+  const settledAt = useRef(performance.now())
 
-  // Reset orientation when the target itself changes (i.e. a new model mounted).
   useEffect(() => {
     quat.current = new THREE.Quaternion()
     velocity.current = { x: 0, y: 0 }
+    settledAt.current = performance.now()
   }, [targetRef])
 
   const applyDelta = (dx: number, dy: number) => {
@@ -47,15 +51,15 @@ export function useGrabRotate(targetRef: RefObject<THREE.Object3D | null>, onCli
       applyDelta(dx, dy)
       velocity.current = { x: dx, y: dy }
     }
-    const onUp = (e: PointerEvent) => {
+    const onUp = () => {
       if (!dragging.current) return
       dragging.current = false
       const elapsed = performance.now() - down.current.t
       if (moved.current < CLICK_DIST && elapsed < CLICK_MS) {
         velocity.current = { x: 0, y: 0 }
+        settledAt.current = performance.now()
         onClick()
       }
-      void e
     }
     window.addEventListener('pointermove', onMove)
     window.addEventListener('pointerup', onUp)
@@ -68,12 +72,19 @@ export function useGrabRotate(targetRef: RefObject<THREE.Object3D | null>, onCli
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClick])
 
-  useFrame(() => {
+  useFrame((_, dt) => {
     if (dragging.current) return
     const { x, y } = velocity.current
-    if (Math.abs(x) < MIN_VELOCITY && Math.abs(y) < MIN_VELOCITY) return
-    applyDelta(x, y)
-    velocity.current = { x: x * DAMPING, y: y * DAMPING }
+    if (Math.abs(x) >= MIN_VELOCITY || Math.abs(y) >= MIN_VELOCITY) {
+      applyDelta(x, y)
+      velocity.current = { x: x * DAMPING, y: y * DAMPING }
+      settledAt.current = performance.now()
+      return
+    }
+    // fully settled — after a short pause, ease into a slow idle turn
+    if (performance.now() - settledAt.current > IDLE_DELAY) {
+      applyDelta(IDLE_SPEED * dt * (1 / SENSITIVITY), 0)
+    }
   })
 
   const onPointerDown = (e: { clientX: number; clientY: number; pointerId: number; target: EventTarget | null }) => {
