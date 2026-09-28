@@ -1,7 +1,7 @@
 .sc-root {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   background: #fafbfc;
   overflow: hidden;
   font-family: system-ui, sans-serif;
@@ -81,39 +81,38 @@
   transition: opacity 160ms ease;
 }
 
-/* ---------- Arrows: borderless "play button" glyph, no chrome ---------- */
+/* ---------- Arrows: chunky, pressable "gamepad button" ---------- */
 .sc-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 5;
-  width: 3.2rem;
-  height: 3.2rem;
-  border-radius: 999px;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 18px;
   border: none;
   padding: 0;
-  background: transparent;
-  color: #5c5e63;
+  background: #dcd9d1;
+  color: #2a2a2a;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, transform 0.1s;
+  box-shadow: 0 4px 0 0 #aeaa9f, 0 6px 10px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.1s, transform 0.1s;
 }
 .sc-arrow__face {
   position: absolute;
   inset: 0;
-  border-radius: 999px;
+  border-radius: 18px;
   display: grid;
   place-items: center;
+  background: linear-gradient(180deg, #fbfaf7, #e4e1d8);
   transition: transform 0.1s;
 }
-.sc-arrow:hover {
-  background: rgba(21, 21, 21, 0.06);
-  color: #151515;
+.sc-arrow:hover .sc-arrow__face {
+  background: linear-gradient(180deg, #ffffff, #ebe8de);
 }
 .sc-arrow:active {
-  transform: translateY(-50%) scale(0.92);
-}
-.sc-arrow:active .sc-arrow__face {
-  transform: scale(0.94);
+  box-shadow: 0 1px 0 0 #aeaa9f, 0 2px 4px rgba(0, 0, 0, 0.12);
+  transform: translateY(-50%) translateY(3px);
 }
 .sc-arrow:focus-visible {
   outline: 2px solid #2a2a2a;
@@ -245,54 +244,16 @@
 }
 
 /* ---------- Navbar ---------- */
-/* Hoisted to the page level (not inside .sc-root) so it stays put across both
-   the hero and the Bento grid below. Sits above the shrinking hero clone
-   (z-index 40) at all times. Proportions taken from the reference: ~7.5% side
-   margins, links hugging the logo, pills on the far right. */
-.sc-nav-dock {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  display: flex;
-  justify-content: center;
-  padding-top: 0;
-  transition: padding-top 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.sc-nav-dock--compact {
-  padding-top: 0.85rem;
-}
+/* Proportions taken from the reference: ~7.5% side margins, links hugging the logo,
+   pills on the far right. */
 .sc-nav {
   position: relative;
-  width: 100%;
-  max-width: 100%;
+  z-index: 6;
   display: flex;
   align-items: center;
   padding: 0 7.5vw;
   height: 6.5rem;
   box-sizing: border-box;
-  border-radius: 0;
-  background: transparent;
-  border: 1px solid transparent;
-  box-shadow: none;
-  backdrop-filter: none;
-  transition: max-width 0.4s cubic-bezier(0.22, 1, 0.36, 1), height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    padding 0.4s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease,
-    border-radius 0.4s ease;
-}
-/* Once scrolled, the nav floats up slightly, tightens, and its width is
-   clamped to the same max-width as the Bento grid below it. */
-.sc-nav-dock--compact .sc-nav {
-  max-width: 1200px;
-  height: 4.25rem;
-  padding: 0 1.75rem;
-  border-radius: 999px;
-  background: rgba(250, 251, 252, 0.75);
-  border: 1px solid rgba(21, 21, 21, 0.07);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
 }
 .sc-nav__logo {
   color: var(--ink);
@@ -307,7 +268,7 @@
   margin-left: clamp(2.5rem, 6vw, 5.5rem);
 }
 .sc-nav__link {
-  font-size: 1.02rem;
+  font-size: 0.9rem;
   color: #8a8d92;
   text-decoration: none;
   transition: color 0.15s;
@@ -345,11 +306,11 @@
   background: #f2f2f0;
 }
 .sc-nav__pill--solid {
-  background: #3a3a3d;
-  color: #f5f5f4;
+  background: #dcf25a;
+  color: #1a1a1a;
 }
 .sc-nav__pill--solid:hover {
-  background: #262628;
+  background: #cfe64c;
 }
 
 @media (max-width: 640px) {

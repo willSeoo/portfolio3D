@@ -1,5 +1,5 @@
-import Page from './Page'
+import { ShowcaseScene } from './components/showcase/ShowcaseScene'
 
 export default function App() {
-  return <Page />
+  return <ShowcaseScene />
 }

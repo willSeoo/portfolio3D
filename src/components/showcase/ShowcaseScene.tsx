@@ -5,6 +5,7 @@ import { StudioEnvironment } from '../project-card-3d/StudioEnvironment'
 import { ArrowButton } from './ArrowButton'
 import { Caption } from './Caption'
 import { ConfirmPopup } from './ConfirmPopup'
+import { Navbar } from './Navbar'
 import './showcase.css'
 import { PhotoShowcase } from './PhotoShowcase'
 import { SketchfabEmbed } from './SketchfabEmbed'
@@ -75,6 +76,7 @@ export function ShowcaseScene() {
 
   return (
     <div className="sc-root">
+      <Navbar />
       <div className="sc-viewport">
         <div className="sc-stage" style={style}>
           <Canvas dpr={[1, 2]} gl={{ antialias: true }} camera={{ position: [0, 0, 4.2], fov: 32 }}>

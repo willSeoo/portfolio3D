@@ -3,36 +3,21 @@ import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import * as THREE from 'three'
 
+const UP = new THREE.Vector3(0, 1, 0)
+const RIGHT = new THREE.Vector3(1, 0, 0)
 const SENSITIVITY = 0.0072
 const DAMPING = 0.94
 const MIN_VELOCITY = 0.02
-// Keep elevation short of the poles. Without this, a normal vertical drag can
-// sail past +/-90° and the object flips direction mid-drag (classic "gimbal
-// flip" disorientation) — clamping is what makes vertical drag feel like a
-// bounded tilt (as in Sketchfab/orbit viewers) instead of a spin that can
-// invert on you.
-const MAX_ELEVATION = THREE.MathUtils.degToRad(85)
 const CLICK_DIST = 6 // px — under this, a pointerdown+up pair counts as a click, not a drag
 const CLICK_MS = 500
 const IDLE_DELAY = 500 // ms of being fully settled before the idle turn resumes
 const IDLE_SPEED = 0.16 // rad/sec — a slow, deliberate turn, not a spin
 
 /**
- * Grab-and-spin: drag rotates the object, release lets it coast to a stop,
- * and once it's been still for a moment it slowly turns on its own (paused
- * instantly the moment it's grabbed again). Also reports a click (near-zero
- * movement, released quickly) separately from a drag.
- *
- * Rotation is tracked as two decoupled angles — azimuth (turn left/right)
- * and elevation (tilt up/down) — and rebuilt into a quaternion fresh every
- * frame (Euler order 'YXZ'), instead of composing deltas into a running
- * quaternion via premultiply. The old premultiply approach let the two axes
- * entangle: after enough turning, "drag up" would visually roll the object
- * instead of tilting it, which reads as broken/unnatural. Decoupled angles
- * behave like a standard product-viewer / orbit control — dragging right
- * always turns the same way, dragging up always tilts the same way, no
- * matter how the object is currently oriented — the "feels like Sketchfab"
- * behavior being asked for.
+ * Grab-and-spin: drag rotates the object freely on world axes, release lets
+ * it coast to a stop, and once it's been still for a moment it slowly turns
+ * on its own (paused instantly the moment it's grabbed again). Also reports
+ * a click (near-zero movement, released quickly) separately from a drag.
  */
 export function useGrabRotate(targetRef: RefObject<THREE.Object3D | null>, onClick: () => void) {
   const dragging = useRef(false)
@@ -40,24 +25,20 @@ export function useGrabRotate(targetRef: RefObject<THREE.Object3D | null>, onCli
   const down = useRef({ x: 0, y: 0, t: 0 })
   const moved = useRef(0)
   const velocity = useRef({ x: 0, y: 0 })
-  const azimuth = useRef(0)
-  const elevation = useRef(0)
-  const euler = useRef(new THREE.Euler(0, 0, 0, 'YXZ'))
+  const quat = useRef(new THREE.Quaternion())
   const settledAt = useRef(performance.now())
 
   useEffect(() => {
-    azimuth.current = 0
-    elevation.current = 0
+    quat.current = new THREE.Quaternion()
     velocity.current = { x: 0, y: 0 }
     settledAt.current = performance.now()
-    targetRef.current?.quaternion.identity()
   }, [targetRef])
 
   const applyDelta = (dx: number, dy: number) => {
-    azimuth.current += dx * SENSITIVITY
-    elevation.current = THREE.MathUtils.clamp(elevation.current + dy * SENSITIVITY, -MAX_ELEVATION, MAX_ELEVATION)
-    euler.current.set(elevation.current, azimuth.current, 0)
-    targetRef.current?.quaternion.setFromEuler(euler.current)
+    const yaw = new THREE.Quaternion().setFromAxisAngle(UP, dx * SENSITIVITY)
+    const pitch = new THREE.Quaternion().setFromAxisAngle(RIGHT, dy * SENSITIVITY)
+    quat.current.premultiply(yaw).premultiply(pitch)
+    targetRef.current?.quaternion.copy(quat.current)
   }
 
   useEffect(() => {
