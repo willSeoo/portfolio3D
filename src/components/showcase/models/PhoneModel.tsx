@@ -10,13 +10,22 @@ export function PhoneModel({ item, size }: { item: ModelShowcaseItem; size: numb
   const width = height * 0.47
   const depth = width * 0.09
 
-  const bodyGeo = useMemo(() => new RoundedBoxGeometry(width, height, depth, 4, width * 0.16), [width, height, depth])
-  const bodyMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#1c1e22', metalness: 0.6, roughness: 0.35, clearcoat: 0.4 }), [])
+  // Modern flagship-phone proportions: slimmer bezel, tighter corner radius,
+  // matte titanium-ish body — no brand logo anywhere on it.
+  const bodyGeo = useMemo(() => new RoundedBoxGeometry(width, height, depth, 4, width * 0.12), [width, height, depth])
+  const bodyMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#242427', metalness: 0.55, roughness: 0.42, clearcoat: 0.3 }), [])
 
   const screenTexture = useScreenTexture(item.thumbnail, item.title, item.tone)
-  const screenW = width * 0.88
-  const screenH = height * 0.94
+  const screenW = width * 0.9
+  const screenH = height * 0.96
   const screenZ = depth / 2 + 0.002
+
+  const islandW = width * 0.24
+  const islandH = width * 0.065
+  const islandGeo = useMemo(
+    () => new RoundedBoxGeometry(islandW, islandH, 0.006, 3, islandH / 2),
+    [islandW, islandH],
+  )
 
   return (
     <group>
@@ -25,10 +34,9 @@ export function PhoneModel({ item, size }: { item: ModelShowcaseItem; size: numb
         <planeGeometry args={[screenW, screenH]} />
         <meshStandardMaterial map={screenTexture} roughness={0.25} metalness={0.05} emissive="#ffffff" emissiveMap={screenTexture} emissiveIntensity={0.25} />
       </mesh>
-      {/* camera notch */}
-      <mesh position={[0, height * 0.44, screenZ + 0.001]}>
-        <circleGeometry args={[width * 0.025, 24]} />
-        <meshStandardMaterial color="#05060a" roughness={0.2} metalness={0.6} />
+      {/* dynamic-island-style pill cutout, modern-flagship look, no logo */}
+      <mesh geometry={islandGeo} position={[0, height * 0.43, screenZ + 0.0015]}>
+        <meshStandardMaterial color="#05060a" roughness={0.35} metalness={0.1} />
       </mesh>
       {/* home indicator */}
       <mesh position={[0, -height * 0.44, screenZ + 0.001]}>

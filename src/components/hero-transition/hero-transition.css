@@ -1,0 +1,17 @@
+.hero-trans-wrap {
+  position: relative;
+  width: 100%;
+}
+.hero-trans-clone {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 40;
+  overflow: hidden;
+  transform-origin: 50% 50%;
+  will-change: transform, border-radius, opacity;
+}
+.hero-trans-clone .sc-root {
+  height: 100%;
+}
