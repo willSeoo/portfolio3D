@@ -5,6 +5,7 @@ import { StudioEnvironment } from '../project-card-3d/StudioEnvironment'
 import { ArrowButton } from './ArrowButton'
 import { Caption } from './Caption'
 import { ConfirmPopup } from './ConfirmPopup'
+import { Navbar } from './Navbar'
 import './showcase.css'
 import { PhotoShowcase } from './PhotoShowcase'
 import { SketchfabEmbed } from './SketchfabEmbed'
@@ -67,31 +68,32 @@ export function ShowcaseScene() {
     setPopupOpen(true)
   }
 
-  // Remounts the WebGL model group when the item changes so each model starts
-  // fresh (no leftover spin/orientation carried over from the previous card).
+  // Remounts just the model group (not the whole Canvas) when the item changes,
+  // so each model starts fresh with no leftover spin/orientation — the Canvas
+  // itself, and its camera/viewport, stays alive across every slide, model or
+  // not, so nothing has to re-measure itself and drift on the way back around.
   const stageKey = useMemo(() => `${item.id}-${index}`, [item.id, index])
 
   return (
     <div className="sc-root">
-      <div className="sc-stage" style={style}>
-        {item.kind === 'embed' ? (
-          <SketchfabEmbed item={item} onOpen={openPopup} />
-        ) : item.kind === 'photo' ? (
-          <PhotoShowcase item={item} onOpen={openPopup} />
-        ) : (
+      <Navbar />
+      <div className="sc-viewport">
+        <div className="sc-stage" style={style}>
           <Canvas dpr={[1, 2]} gl={{ antialias: true }} camera={{ position: [0, 0, 4.2], fov: 32 }}>
             <StudioEnvironment />
             <ambientLight intensity={0.35} />
             <directionalLight position={[3, 4, 5]} intensity={0.9} />
             <directionalLight position={[-4, -2, 2]} intensity={0.25} />
-            <ModelStage key={stageKey} item={item} onOpenPopup={openPopup} />
+            {item.kind === 'model' && <ModelStage key={stageKey} item={item} onOpenPopup={openPopup} />}
           </Canvas>
-        )}
-        <div className="sc-flash" style={{ opacity: flash ? 0.35 : 0 }} />
-      </div>
+          {item.kind === 'embed' && <SketchfabEmbed item={item} onOpen={openPopup} />}
+          {item.kind === 'photo' && <PhotoShowcase item={item} onOpen={openPopup} />}
+          <div className="sc-flash" style={{ opacity: flash ? 0.35 : 0 }} />
+        </div>
 
-      <ArrowButton direction="left" label="Previous" onClick={prev} />
-      <ArrowButton direction="right" label="Next" onClick={next} />
+        <ArrowButton direction="left" label="Previous" onClick={prev} />
+        <ArrowButton direction="right" label="Next" onClick={next} />
+      </div>
 
       <Caption item={item} />
 

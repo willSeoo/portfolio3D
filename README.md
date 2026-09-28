@@ -13,15 +13,26 @@ committed `package-lock.json` already resolves a working tree.
 
 One centered "stage" that shows a project at a time — a real WebGL model
 (card / phone / old CRT PC) or a plain photo — with arrow buttons and the
-← → keys to switch, a snappy slide/scale/rotate transition with a crunchy
-synthesized "thock" (Web Audio, no audio files), and grab-to-spin on every
+← → keys to switch, a snappy slide/scale/rotate transition with a short
+synthesized click (Web Audio, no audio files), and grab-to-spin on every
 3D model (cursor turns to a hand on hover). Left alone for a moment, a
 model slowly turns on its own — grabbing it interrupts that instantly.
 **Click** a model (a real click, not a drag) to open a popup:
 **✕ closes it, ○ opens the project's page.**
 
+The Canvas (WebGL context) stays mounted across every slide, model or not —
+only the model *inside* it swaps — so the camera/viewport never has to
+re-measure itself mid-carousel, which is what caused the old "drifts left
+after wrapping around" bug.
+
 `src/components/showcase/` is the whole thing:
 
+- **`Navbar.tsx`** — top bar (logo, Home/Work/Fun/Philosophy, Blog + Contact
+  pills). Labels, hrefs and the star logo are placeholders — edit the file
+  directly. Spacing follows the reference's proportions (`padding: 0 7.5vw`).
+- **`Caption.tsx`** — the big light-gray wordmark bottom-left; it shows the
+  current project's title (font size / color / left margin in `showcase.css`
+  under `.sc-caption`).
 - **`ShowcaseScene.tsx`** — the page: stage, transition, arrows, caption,
   popup, keyboard. Wired into `App.tsx`.
 - **`data.ts`** — **your project list.** Each entry is one of:

@@ -10,9 +10,9 @@ import { useGrabRotate } from './useGrabRotate'
 // Each model type gets its own height budget (relative to the stage's visible
 // height) since a phone reads very differently from a boxy CRT at the same size.
 const HEIGHT_FRACTION: Record<ModelShowcaseItem['model'], number> = {
-  card: 0.34,
-  phone: 0.56,
-  oldpc: 0.43,
+  card: 0.42,
+  phone: 0.66,
+  oldpc: 0.52,
 }
 
 interface Props {

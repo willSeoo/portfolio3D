@@ -2,17 +2,23 @@
   position: relative;
   width: 100%;
   height: 100vh;
-  background: #f4f2ee;
+  background: #fafbfc;
   overflow: hidden;
   font-family: system-ui, sans-serif;
   --ink: #151515;
   color: var(--ink);
 }
 
+.sc-viewport {
+  position: absolute;
+  top: 6.5rem; /* below the navbar */
+  left: 0;
+  right: 0;
+  bottom: 9rem; /* leave room for the caption bar; arrows + stage both live in here */
+}
 .sc-stage {
   position: absolute;
   inset: 0;
-  bottom: 6.5rem; /* leave room for the caption bar */
   will-change: transform, opacity;
 }
 .sc-stage canvas {
@@ -80,6 +86,7 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+  z-index: 5;
   width: 3.4rem;
   height: 3.4rem;
   border-radius: 18px;
@@ -88,7 +95,6 @@
   background: #dcd9d1;
   color: #2a2a2a;
   cursor: pointer;
-  z-index: 5;
   box-shadow: 0 4px 0 0 #aeaa9f, 0 6px 10px rgba(0, 0, 0, 0.12);
   transition: box-shadow 0.1s, transform 0.1s;
 }
@@ -125,22 +131,25 @@
   left: 0;
   right: 0;
   bottom: 0;
-  height: 6.5rem;
+  height: 9rem;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 clamp(1.25rem, 5vw, 4rem);
-  gap: 1.5rem;
+  align-items: flex-end;
+  padding: 0 0 2.2rem 4vw;
 }
 .sc-caption__text h2 {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 500;
+  font-size: clamp(2.25rem, 4.8vw, 5rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  color: #b9bbbf;
+  line-height: 0.95;
 }
 .sc-caption__text p {
-  margin: 0.2rem 0 0;
+  margin: 0.5rem 0 0;
   font-size: 0.85rem;
-  opacity: 0.6;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #b7b9bd;
 }
 
 
@@ -217,10 +226,6 @@
   from { opacity: 0; transform: scale(0.9) translateY(8px); }
 }
 
-@media (max-width: 640px) {
-  .sc-caption { flex-direction: column; align-items: flex-start; justify-content: center; gap: 0.6rem; height: auto; padding: 1rem 1.25rem 1.25rem; }
-  .sc-stage { bottom: 6.5rem; }
-}
 
 .sc-embed-open {
   position: absolute;
@@ -236,4 +241,86 @@
   place-items: center;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ---------- Navbar ---------- */
+/* Proportions taken from the reference: ~7.5% side margins, links hugging the logo,
+   pills on the far right. */
+.sc-nav {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  padding: 0 7.5vw;
+  height: 6.5rem;
+  box-sizing: border-box;
+}
+.sc-nav__logo {
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+.sc-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-left: clamp(2.5rem, 6vw, 5.5rem);
+}
+.sc-nav__link {
+  font-size: 0.9rem;
+  color: #8a8d92;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.sc-nav__link:hover {
+  color: var(--ink);
+}
+.sc-nav__link--active {
+  color: var(--ink);
+  font-weight: 500;
+}
+.sc-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+.sc-nav__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.7rem 1.3rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.sc-nav__pill--ghost {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid rgba(21, 21, 21, 0.08);
+}
+.sc-nav__pill--ghost:hover {
+  background: #f2f2f0;
+}
+.sc-nav__pill--solid {
+  background: #dcf25a;
+  color: #1a1a1a;
+}
+.sc-nav__pill--solid:hover {
+  background: #cfe64c;
+}
+
+@media (max-width: 640px) {
+  .sc-nav {
+    padding: 0 1.25rem;
+  }
+  .sc-nav__links {
+    display: none;
+  }
+  .sc-caption {
+    padding-left: 1.25rem;
+  }
 }
