@@ -3,7 +3,7 @@ export function Navbar() {
   return (
     <header className="sc-nav">
       <a href="/" className="sc-nav__logo" aria-label="Home">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true">
           <path d="M12 2 L14.2 9.2 L21.5 9.2 L15.6 13.7 L17.8 21 L12 16.5 L6.2 21 L8.4 13.7 L2.5 9.2 L9.8 9.2 Z" />
         </svg>
       </a>

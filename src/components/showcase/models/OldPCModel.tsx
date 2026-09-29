@@ -19,9 +19,9 @@ export function OldPCModel({ item, size }: { item: ModelShowcaseItem; size: numb
   const bezelMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#141414', roughness: 0.55 }), [])
   const bezelZ = depth / 2 - depth * 0.02
 
-  const screenTexture = useScreenTexture(item.thumbnail, item.title, item.tone)
   const screenW = bezelW * 0.82
   const screenH = bezelH * 0.78
+  const screenTexture = useScreenTexture(item.thumbnail, item.title, item.tone, screenW / screenH)
 
   return (
     <group>

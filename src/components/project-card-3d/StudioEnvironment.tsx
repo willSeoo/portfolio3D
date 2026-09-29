@@ -7,17 +7,17 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
  * Procedural reflection environment (no HDRI fetch): this is what makes the cards'
  * clearcoat actually catch and move light as they turn, instead of a faked gradient.
  */
-export function StudioEnvironment() {
+export function StudioEnvironment({ intensity = 1.1 }: { intensity?: number }) {
   const { gl, scene } = useThree()
   useEffect(() => {
     const pmrem = new THREE.PMREMGenerator(gl)
     const envTexture = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
     scene.environment = envTexture
-    scene.environmentIntensity = 1.1
+    scene.environmentIntensity = intensity
     return () => {
       pmrem.dispose()
       envTexture.dispose()
     }
-  }, [gl, scene])
+  }, [gl, scene, intensity])
   return null
 }

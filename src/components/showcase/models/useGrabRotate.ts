@@ -72,8 +72,9 @@ export function useGrabRotate(targetRef: RefObject<THREE.Object3D | null>, onCli
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClick])
 
-  useFrame((_, dt) => {
+  useFrame((_, delta) => {
     if (dragging.current) return
+    const dt = Math.min(delta, 0.05) // a stalled frame shouldn't make the idle turn jump
     const { x, y } = velocity.current
     if (Math.abs(x) >= MIN_VELOCITY || Math.abs(y) >= MIN_VELOCITY) {
       applyDelta(x, y)

@@ -44,11 +44,19 @@ after wrapping around" bug.
     small ○ button in its corner since we can't detect clicks inside a
     cross-origin iframe.
   Add, remove, or reorder items freely; the carousel just follows the array.
-- **`models/CardModel.tsx`**, **`models/PhoneModel.tsx`**,
-  **`models/OldPCModel.tsx`** — one file per 3D model type. Each takes
-  `item` (thumbnail/tone/title) and `size`. `models/ModelStage.tsx` picks
-  the right one, sizes it (`HEIGHT_FRACTION` per type), and wires up
-  grab/click/hover.
+- **`models/CardModel.tsx`** — your ID card. It's a thin slab (real rounded
+  corners via `geometry.ts`, not the boxy RoundedBoxGeometry look) with a
+  front and back drawn on canvas. **Edit `models/idCard.config.ts`** for
+  all the text/colors — name, address, the joke details, the back's
+  headline and lines. Your own front photo goes in `data.ts` as that
+  item's `thumbnail`; an optional full-bleed back design as `backImage`.
+  Leave either out and you get a placeholder silhouette / generated back.
+- **`models/PhoneModel.tsx`** — a modern-flagship-style phone (flat metal
+  frame, Dynamic-Island-style pill, three-lens camera bump on the back) —
+  no logos anywhere, so it doesn't read as any specific brand.
+- **`models/OldPCModel.tsx`** — the CRT monitor, unchanged.
+- `models/ModelStage.tsx` picks the right one per slide, sizes it
+  (`HEIGHT_FRACTION`), and wires up grab/click/hover.
 - **`models/useGrabRotate.ts`** — drag-to-spin, inertia on release, and the
   slow idle turn once it's settled (`IDLE_SPEED`, `IDLE_DELAY`).
 - **`models/useScreenTexture.ts`** — loads `item.thumbnail` onto whichever

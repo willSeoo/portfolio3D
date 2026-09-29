@@ -15,6 +15,8 @@ export interface ModelShowcaseItem extends ShowcaseItemBase {
   model: ModelType
   /** Image shown on the card/phone/PC screen. Falls back to a generated placeholder if missing. */
   thumbnail?: string
+  /** ID card only: a full-bleed photo/design for the card's back. Omit for the generated back. */
+  backImage?: string
   /** Accent color (card back, phone/PC screen bezel glow). */
   tone?: string
 }

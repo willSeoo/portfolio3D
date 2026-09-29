@@ -81,48 +81,52 @@
   transition: opacity 160ms ease;
 }
 
-/* ---------- Arrows: chunky, pressable "gamepad button" ---------- */
+/* ---------- Arrows: bare rounded "play" triangles, no background ---------- */
 .sc-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 5;
-  width: 3.4rem;
-  height: 3.4rem;
-  border-radius: 18px;
-  border: none;
+  width: 4.5rem;
+  height: 4.5rem;
   padding: 0;
-  background: #dcd9d1;
-  color: #2a2a2a;
-  cursor: pointer;
-  box-shadow: 0 4px 0 0 #aeaa9f, 0 6px 10px rgba(0, 0, 0, 0.12);
-  transition: box-shadow 0.1s, transform 0.1s;
-}
-.sc-arrow__face {
-  position: absolute;
-  inset: 0;
-  border-radius: 18px;
+  border: none;
+  background: none;
   display: grid;
   place-items: center;
-  background: linear-gradient(180deg, #fbfaf7, #e4e1d8);
-  transition: transform 0.1s;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
-.sc-arrow:hover .sc-arrow__face {
-  background: linear-gradient(180deg, #ffffff, #ebe8de);
+.sc-arrow__icon {
+  width: 3.4rem;
+  height: 3.4rem;
+  overflow: visible;
+  filter: drop-shadow(0 6px 8px rgba(20, 22, 28, 0.22));
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s;
 }
-.sc-arrow:active {
-  box-shadow: 0 1px 0 0 #aeaa9f, 0 2px 4px rgba(0, 0, 0, 0.12);
-  transform: translateY(-50%) translateY(3px);
+.sc-arrow--right:hover .sc-arrow__icon {
+  transform: translateX(4px) scale(1.12);
+  filter: drop-shadow(0 9px 12px rgba(20, 22, 28, 0.28));
+}
+.sc-arrow--left:hover .sc-arrow__icon {
+  transform: translateX(-4px) scale(1.12);
+  filter: drop-shadow(0 9px 12px rgba(20, 22, 28, 0.28));
+}
+.sc-arrow:active .sc-arrow__icon {
+  transform: scale(0.86);
+  filter: drop-shadow(0 2px 3px rgba(20, 22, 28, 0.25));
+  transition-duration: 0.08s;
 }
 .sc-arrow:focus-visible {
   outline: 2px solid #2a2a2a;
-  outline-offset: 2px;
+  outline-offset: -6px;
+  border-radius: 18px;
 }
 .sc-arrow--left {
-  left: clamp(0.75rem, 3vw, 2.5rem);
+  left: clamp(0.5rem, 2.6vw, 2.25rem);
 }
 .sc-arrow--right {
-  right: clamp(0.75rem, 3vw, 2.5rem);
+  right: clamp(0.5rem, 2.6vw, 2.25rem);
 }
 
 /* ---------- Caption ---------- */
@@ -264,11 +268,11 @@
 .sc-nav__links {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 2.4rem;
   margin-left: clamp(2.5rem, 6vw, 5.5rem);
 }
 .sc-nav__link {
-  font-size: 0.9rem;
+  font-size: 1.08rem;
   color: #8a8d92;
   text-decoration: none;
   transition: color 0.15s;
@@ -290,9 +294,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.7rem 1.3rem;
+  padding: 0.8rem 1.55rem;
   border-radius: 999px;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   font-weight: 500;
   text-decoration: none;
   white-space: nowrap;
@@ -306,11 +310,11 @@
   background: #f2f2f0;
 }
 .sc-nav__pill--solid {
-  background: #dcf25a;
-  color: #1a1a1a;
+  background: #dfe1e5;
+  color: #1a1c20;
 }
 .sc-nav__pill--solid:hover {
-  background: #cfe64c;
+  background: #d2d5da;
 }
 
 @media (max-width: 640px) {

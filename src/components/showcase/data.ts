@@ -9,13 +9,13 @@ export const showcaseItems: ShowcaseItem[] = [
   {
     kind: 'model',
     model: 'card',
-    id: 'ingco',
-    title: 'INGCO Graphic Work',
-    category: 'Graphic design',
-    year: '2025',
-    href: '/projects/ingco',
-    thumbnail: '/assets/projects/ingco.svg',
-    tone: '#f0d6c9',
+    id: 'about',
+    title: 'About Me',
+    category: 'Identity',
+    year: '2026',
+    href: '/about',
+    // thumbnail: '/assets/me-front.jpg',   // your photo for the front of the ID
+    // backImage: '/assets/me-back.jpg',    // optional full-bleed design for the back
   },
   {
     kind: 'model',

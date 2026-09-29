@@ -79,11 +79,18 @@ export function ShowcaseScene() {
       <Navbar />
       <div className="sc-viewport">
         <div className="sc-stage" style={style}>
-          <Canvas dpr={[1, 2]} gl={{ antialias: true }} camera={{ position: [0, 0, 4.2], fov: 32 }}>
-            <StudioEnvironment />
-            <ambientLight intensity={0.35} />
-            <directionalLight position={[3, 4, 5]} intensity={0.9} />
-            <directionalLight position={[-4, -2, 2]} intensity={0.25} />
+          <Canvas
+            dpr={[1, 2]}
+            gl={{ antialias: true }}
+            camera={{ position: [0, 0, 4.2], fov: 32 }}
+            onCreated={({ gl }) => {
+              gl.toneMappingExposure = 0.72 // the studio environment is bright; keep paper/glass from blowing out
+            }}
+          >
+            <StudioEnvironment intensity={0.8} />
+            <ambientLight intensity={0.22} />
+            <directionalLight position={[3, 4, 5]} intensity={0.75} />
+            <directionalLight position={[-4, -2, 2]} intensity={0.2} />
             {item.kind === 'model' && <ModelStage key={stageKey} item={item} onOpenPopup={openPopup} />}
           </Canvas>
           {item.kind === 'embed' && <SketchfabEmbed item={item} onOpen={openPopup} />}
