@@ -18,8 +18,8 @@ export function ArrowButton({ direction, onClick, label }: Props) {
       <svg viewBox="0 0 24 24" className="sc-arrow__icon" aria-hidden="true">
         <defs>
           <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#3b3f47" />
-            <stop offset="1" stopColor="#16181c" />
+            <stop offset="0" stopColor="#d9dce1" />
+            <stop offset="1" stopColor="#b6bac1" />
           </linearGradient>
         </defs>
         <path d={PATH[direction]} fill={`url(#${id})`} stroke={`url(#${id})`} strokeWidth="3.2" strokeLinejoin="round" />
@@ -27,7 +27,7 @@ export function ArrowButton({ direction, onClick, label }: Props) {
         <path
           d={direction === 'right' ? 'M9.6 7.4 L17 11.6' : 'M14.4 7.4 L7 11.6'}
           fill="none"
-          stroke="rgba(255,255,255,0.28)"
+          stroke="rgba(255,255,255,0.7)"
           strokeWidth="1.1"
           strokeLinecap="round"
         />

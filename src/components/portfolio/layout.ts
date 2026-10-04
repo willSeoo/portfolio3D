@@ -76,7 +76,7 @@ export function buildRows(items: BentoItem[], seed = 7): BentoRow[] {
     } else {
       const wide = (2.9 + rng() * 0.6) / HEIGHT_FACTOR
       // the full-width box right under the hero row is the tall one (it holds a video)
-      rows.push({ aspect: rowIndex === 1 ? 2.6 : wide, cells: [{ item: cells[i], weight: 1 }] })
+      rows.push({ aspect: rowIndex === 1 ? 2.0 : wide, cells: [{ item: cells[i], weight: 1 }] })
       i += 1
     }
   }

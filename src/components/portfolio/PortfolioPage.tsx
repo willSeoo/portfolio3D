@@ -23,9 +23,6 @@ const REST_TOP = 84
 /** Model scale (relative to the fullscreen hero) once it sits in its card; ModelStage caps it per model so nothing gets cut off. */
 const DOCKED_MODEL_ZOOM = 1.2
 
-const shadow = (e: number) =>
-  `0 1px 2px rgba(20,22,28,${(0.04 * e).toFixed(3)}), 0 ${(14 * e).toFixed(1)}px ${(36 * e).toFixed(1)}px ${(-16 * e).toFixed(1)}px rgba(20,22,28,${(0.22 * e).toFixed(3)})`
-
 export function PortfolioPage() {
   const rootRef = useRef<HTMLDivElement>(null)
   const spacerRef = useRef<HTMLDivElement>(null)
@@ -139,7 +136,8 @@ export function PortfolioPage() {
         hero.style.height = '100%'
         hero.style.transform = 'none'
         hero.style.borderRadius = `${m.radius}px`
-        hero.style.boxShadow = shadow(1)
+        hero.style.boxShadow = 'none'
+        heroZoom.docked = true
         hero.style.setProperty('--dock', '1')
         hero.classList.add('is-docked')
       }
@@ -163,11 +161,12 @@ export function PortfolioPage() {
       hero.style.height = `${h.toFixed(2)}px`
       hero.style.transform = `translate3d(${x.toFixed(2)}px, ${yy.toFixed(2)}px, 0)`
       hero.style.borderRadius = `${lerp(0, m.radius, e).toFixed(2)}px`
-      hero.style.boxShadow = shadow(e)
+      hero.style.boxShadow = 'none'
       fitLayer(w, h, e)
       const d = smoothstep(0.2, 0.75, e) // caption + arrows fade out on the way in
       hero.style.setProperty('--dock', d.toFixed(3))
       hero.classList.toggle('is-docked', d > 0.6)
+      heroZoom.docked = d > 0.6
       heroZoom.value = lerp(1, DOCKED_MODEL_ZOOM, e)
     }
 
@@ -253,8 +252,21 @@ export function PortfolioPage() {
       tween.scrollTrigger?.kill()
       tween.kill()
       heroZoom.value = 1
+      heroZoom.docked = false
     }
   }, [syncActive])
+
+  // Docked in bento #1: a tap (not a drag) anywhere on the card scrolls back to the top;
+  // dragging on the model still spins it.
+  const heroDown = useRef({ x: 0, y: 0 })
+  const onHeroDown = useCallback((e: React.PointerEvent) => {
+    heroDown.current = { x: e.clientX, y: e.clientY }
+  }, [])
+  const onHeroClick = useCallback((e: React.MouseEvent) => {
+    if (!heroZoom.docked) return
+    if (Math.hypot(e.clientX - heroDown.current.x, e.clientY - heroDown.current.y) > 6) return
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
 
   const openCard = useCallback((item: BentoItem, el: HTMLElement) => setLightbox({ item, el }), [])
 
@@ -273,22 +285,14 @@ export function PortfolioPage() {
           slotRef={slotRef}
           onOpen={openCard}
           hero={
-            <div className="pf-hero" ref={heroRef}>
+            <div className="pf-hero" ref={heroRef} onPointerDownCapture={onHeroDown} onClick={onHeroClick}>
               <div className="pf-hero__layer" ref={layerRef}>
                 <ShowcaseScene showNav={false} active={heroLive} />
               </div>
-              {/* Only live once the hero sits in its bento: a click takes you back home (top). */}
-              <button
-                type="button"
-                className="pf-hero__home"
-                aria-label="Back to home"
-                tabIndex={-1}
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              >
-                <span className="pf-card__arrow" aria-hidden="true">
-                  ↑
-                </span>
-              </button>
+              {/* hover hint, only visible once docked: tap = back home, drag = spin the model */}
+              <span className="pf-card__arrow" aria-hidden="true">
+                ↑
+              </span>
             </div>
           }
         />

@@ -12,6 +12,7 @@ import { SketchfabEmbed } from './SketchfabEmbed'
 import { ENTER_MS, LEAVE_MS, useCarousel } from './useCarousel'
 import { ModelStage } from './models/ModelStage'
 import { playOpen } from './sound'
+import { heroZoom } from './heroZoom'
 
 const REST: CSSProperties = { transform: 'translateX(0) scale(1)', opacity: 1, transition: 'none' }
 
@@ -70,6 +71,11 @@ export function ShowcaseScene({ showNav = true, active = true }: SceneProps) {
   }, [next, prev, popupOpen])
 
   const openPopup = () => {
+    if (heroZoom.docked) {
+      // inside bento #1 a tap means "back to home"; dragging still spins the model
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
     if (isBusy()) return
     playOpen()
     setPopupOpen(true)

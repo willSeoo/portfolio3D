@@ -23,7 +23,7 @@
 
 /* ---------- Bento grid: never full-bleed, always air on both sides ---------- */
 .pf-bento {
-  width: min(1240px, calc(100% - 2 * clamp(1.25rem, 8vw, 8rem)));
+  width: min(1400px, calc(100% - 2 * clamp(1.25rem, 5vw, 8rem)));
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -60,22 +60,18 @@
 .pf-hero .sc-root {
   background: #f9fafb;
 }
-.pf-hero__home {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  padding: 0;
-  border: 0;
-  background: transparent;
+.pf-hero.is-docked {
   cursor: pointer;
+}
+/* docked: horizontal drags spin the model, vertical drags still scroll the page (touch) */
+.pf-hero.is-docked .sc-stage canvas {
+  touch-action: pan-y;
+}
+.pf-hero > .pf-card__arrow {
+  z-index: 3;
   pointer-events: none;
-  -webkit-tap-highlight-color: transparent;
 }
-.pf-hero.is-docked .pf-hero__home {
-  pointer-events: auto;
-}
-.pf-hero__home:hover .pf-card__arrow,
-.pf-hero__home:focus-visible .pf-card__arrow {
+.pf-hero.is-docked:hover > .pf-card__arrow {
   opacity: 1;
   transform: none;
 }
@@ -196,7 +192,7 @@
 }
 
 .pf-footer {
-  width: min(1240px, calc(100% - 2 * clamp(1.25rem, 8vw, 8rem)));
+  width: min(1400px, calc(100% - 2 * clamp(1.25rem, 5vw, 8rem)));
   margin: 0 auto;
   padding: 4rem 0 3rem;
   display: flex;
@@ -224,13 +220,10 @@
   align-items: center;
   width: 100%;
   height: calc(6.5rem - var(--np) * 3.25rem);
-  /* content sits at 7.5vw over the hero, then lines up with the bento grid's edges */
-  padding: 0 calc((1 - var(--np)) * 7.5vw + var(--np) * var(--nav-pad));
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, calc(var(--np) * 0.92)) 0%,
-    rgba(249, 250, 251, calc(var(--np) * 0.86)) 100%
-  );
+  /* content sits at 4vw over the hero, then lines up with the bento grid's edges */
+  padding: 0 calc((1 - var(--np)) * 4vw + var(--np) * var(--nav-pad));
+  /* same colour as the page behind it: the home bg (#f9fafb) at the top, white (#fff) over the bento area */
+  background: rgba(calc(249 + var(--np) * 6), calc(250 + var(--np) * 5), calc(251 + var(--np) * 4), calc(var(--np) * 0.94));
   -webkit-backdrop-filter: blur(calc(var(--np) * 20px)) saturate(calc(1 + var(--np) * 0.8));
   backdrop-filter: blur(calc(var(--np) * 20px)) saturate(calc(1 + var(--np) * 0.8));
   border-bottom: 1px solid rgba(21, 21, 21, calc(var(--np) * 0.07));
@@ -249,7 +242,7 @@
   display: flex;
   align-items: center;
   gap: calc(2.4rem - var(--np) * 0.6rem);
-  margin-left: clamp(2.5rem, 6vw, 5.5rem);
+  margin-left: clamp(1.25rem, 2.4vw, 2.25rem);
 }
 .pf-nav__link {
   font-size: calc(1.08rem - var(--np) * 0.15rem);
