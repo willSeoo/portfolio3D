@@ -15,7 +15,14 @@ import { playOpen } from './sound'
 
 const REST: CSSProperties = { transform: 'translateX(0) scale(1)', opacity: 1, transition: 'none' }
 
-export function ShowcaseScene() {
+interface SceneProps {
+  /** The portfolio page draws its own (morphing) navbar over the hero, so it turns this one off. */
+  showNav?: boolean
+  /** Pause WebGL rendering while the hero is off-screen. */
+  active?: boolean
+}
+
+export function ShowcaseScene({ showNav = true, active = true }: SceneProps) {
   const { index, item, phase, direction, next, prev, isBusy } = useCarousel()
   const [popupOpen, setPopupOpen] = useState(false)
   const [style, setStyle] = useState<CSSProperties>(REST)
@@ -76,11 +83,12 @@ export function ShowcaseScene() {
 
   return (
     <div className="sc-root">
-      <Navbar />
+      {showNav && <Navbar />}
       <div className="sc-viewport">
         <div className="sc-stage" style={style}>
           <Canvas
             dpr={[1, 2]}
+            frameloop={active ? 'always' : 'never'}
             gl={{ antialias: true }}
             camera={{ position: [0, 0, 4.2], fov: 32 }}
             onCreated={({ gl }) => {

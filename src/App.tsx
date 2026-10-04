@@ -1,5 +1,5 @@
-import { ShowcaseScene } from './components/showcase/ShowcaseScene'
+import { PortfolioPage } from './components/portfolio/PortfolioPage'
 
 export default function App() {
-  return <ShowcaseScene />
+  return <PortfolioPage />
 }

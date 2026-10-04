@@ -1,0 +1,416 @@
+:root {
+  --pf-bg: #eceef1;
+  --pf-radius: 28px;
+  --pf-gap: 20px;
+}
+
+.pf {
+  position: relative;
+  background: var(--pf-bg);
+  font-family: system-ui, sans-serif;
+  --ink: #151515;
+  color: var(--ink);
+  overflow-x: clip;
+}
+
+/* ---------- Scroll runway ---------- */
+.pf-spacer {
+  height: calc(115vh + 96px); /* real value is set from JS */
+}
+.pf-main {
+  position: relative;
+}
+
+/* ---------- Bento grid: never full-bleed, always air on both sides ---------- */
+.pf-bento {
+  width: min(1120px, calc(100% - 2 * clamp(1.25rem, 8vw, 8rem)));
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pf-gap);
+}
+.pf-bento__row {
+  display: flex;
+  gap: var(--pf-gap);
+  width: 100%;
+}
+.pf-slot,
+.pf-card {
+  flex-basis: 0;
+  min-width: 0;
+  border-radius: var(--pf-radius);
+}
+/* No transform / filter / z-index / contain here: it would trap the hero's position:fixed. */
+.pf-slot {
+  position: relative;
+}
+
+/* ---------- The hero (lives inside Bento #1's slot) ---------- */
+.pf-hero {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+  overflow: hidden;
+  background: #fafbfc;
+}
+.pf-hero__layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* ---------- Cards ---------- */
+.pf-card {
+  position: relative;
+  display: block;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  overflow: hidden;
+  cursor: pointer;
+  background: #dfe2e7;
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 1px 2px rgba(20, 22, 28, 0.04), 0 14px 36px -16px rgba(20, 22, 28, 0.22);
+  /* revealed by IntersectionObserver (.is-in) as the grid rises into view */
+  opacity: 0;
+  transform: translateY(40px) scale(0.985);
+  transition:
+    opacity 0.7s ease,
+    transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.pf-card.is-in {
+  opacity: 1;
+  transform: none;
+}
+.pf-card:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+.pf-card__media {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.pf-card__media img,
+.pf-card__media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pf-card:hover .pf-card__media {
+  transform: scale(1.045);
+}
+.pf-card__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10, 12, 16, 0.55), rgba(10, 12, 16, 0) 48%);
+  pointer-events: none;
+}
+.pf-card__chip {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #25272b;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+.pf-card__arrow {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--ink);
+  font-size: 0.95rem;
+  opacity: 0;
+  transform: translate(-4px, 4px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.pf-card:hover .pf-card__arrow,
+.pf-card:focus-visible .pf-card__arrow {
+  opacity: 1;
+  transform: none;
+}
+.pf-card__title {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 18px;
+  font-size: clamp(1.1rem, 1.9vw, 1.65rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.pf-footer {
+  width: min(1120px, calc(100% - 2 * clamp(1.25rem, 8vw, 8rem)));
+  margin: 0 auto;
+  padding: 4rem 0 3rem;
+  display: flex;
+  justify-content: space-between;
+  color: #8a8d92;
+  font-size: 0.9rem;
+}
+
+/* ---------- Navbar: full-width header → compact bar just wider than the grid ----------
+   JS only writes --np (0..1) and --nav-final (px); every property below interpolates from them. */
+.pf-nav {
+  --np: 0;
+  --nav-final: 1000px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  padding-top: calc(var(--np) * 0.75rem);
+}
+.pf-nav__bar {
+  pointer-events: auto;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  width: calc(100% - var(--np) * (100% - var(--nav-final)));
+  height: calc(6.5rem - var(--np) * 3rem);
+  padding: 0 calc((1 - var(--np)) * 7.5vw + var(--np) * 1.1rem);
+  border-radius: calc(var(--np) * 999px);
+  background: rgba(255, 255, 255, calc(var(--np) * 0.8));
+  -webkit-backdrop-filter: blur(calc(var(--np) * 18px)) saturate(1.2);
+  backdrop-filter: blur(calc(var(--np) * 18px)) saturate(1.2);
+  border: 1px solid rgba(21, 21, 21, calc(var(--np) * 0.07));
+  box-shadow: 0 10px 30px -18px rgba(20, 22, 28, calc(var(--np) * 0.35));
+}
+.pf-nav__logo {
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+.pf-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 2.4rem;
+  margin-left: clamp(2.5rem, 6vw, 5.5rem);
+}
+.pf-nav__link {
+  font-size: 1.08rem;
+  color: #8a8d92;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.pf-nav__link:hover {
+  color: var(--ink);
+}
+.pf-nav__link--active {
+  color: var(--ink);
+  font-weight: 500;
+}
+.pf-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+.pf-nav__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: calc(0.8rem - var(--np) * 0.25rem) calc(1.55rem - var(--np) * 0.4rem);
+  border-radius: 999px;
+  font-size: 1.05rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.pf-nav__pill--ghost {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid rgba(21, 21, 21, 0.08);
+}
+.pf-nav__pill--ghost:hover {
+  background: #f2f2f0;
+}
+.pf-nav__pill--solid {
+  background: #dfe1e5;
+  color: #1a1c20;
+}
+.pf-nav__pill--solid:hover {
+  background: #d2d5da;
+}
+
+/* ---------- Lightbox: card opens into a big centred panel over a washed-out blur ---------- */
+.pf-lb {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+.pf-lb__backdrop {
+  position: absolute;
+  inset: 0;
+  cursor: zoom-out;
+  background: rgba(244, 245, 247, 0);
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
+  transition:
+    background-color 0.55s ease,
+    backdrop-filter 0.55s ease,
+    -webkit-backdrop-filter 0.55s ease;
+}
+.pf-lb__backdrop.is-open {
+  background: rgba(244, 245, 247, 0.62);
+  -webkit-backdrop-filter: blur(26px) saturate(1.05);
+  backdrop-filter: blur(26px) saturate(1.05);
+}
+.pf-lb__panel {
+  position: fixed;
+  overflow: hidden;
+  border-radius: var(--pf-radius);
+  background: #fff;
+  box-shadow: 0 8px 20px -12px rgba(20, 22, 28, 0.2);
+  transition:
+    left 0.56s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.56s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.56s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.56s cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 0.56s ease,
+    box-shadow 0.56s ease;
+}
+.pf-lb__panel.is-open {
+  border-radius: 34px;
+  box-shadow: 0 40px 90px -36px rgba(20, 22, 28, 0.4);
+}
+.pf-lb__panel img,
+.pf-lb__panel video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pf-lb__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 2.3rem;
+  height: 2.3rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--ink);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.pf-lb__panel.is-open .pf-lb__close {
+  opacity: 1;
+  transition-delay: 0.3s;
+}
+.pf-lb__close:hover {
+  background: #fff;
+}
+.pf-lb__caption {
+  position: fixed;
+  box-sizing: border-box;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  color: #6a6d73;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+.pf-lb__caption.is-open {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.45s ease 0.3s,
+    transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s;
+}
+.pf-lb__caption p {
+  margin: 0;
+  max-width: 62ch;
+}
+.pf-lb__caption strong {
+  font-weight: 500;
+  color: #3b3e44;
+}
+.pf-lb__open {
+  flex: none;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin-top: 0.15rem;
+}
+
+/* ---------- Small screens: one box per row ---------- */
+@media (max-width: 720px) {
+  .pf-bento__row {
+    flex-direction: column;
+    aspect-ratio: auto !important;
+  }
+  .pf-slot,
+  .pf-card {
+    flex: none !important;
+    width: 100%;
+  }
+  .pf-slot {
+    aspect-ratio: 4 / 5;
+  }
+  .pf-card {
+    aspect-ratio: 4 / 3;
+  }
+  .pf-nav__links {
+    display: none;
+  }
+  .pf-nav__bar {
+    padding: 0 calc((1 - var(--np)) * 1.25rem + var(--np) * 1rem);
+  }
+  .pf-lb__caption {
+    font-size: 0.92rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-card {
+    transform: none;
+    transition: opacity 0.2s ease;
+  }
+  .pf-card__media,
+  .pf-lb__panel {
+    transition-duration: 1ms;
+  }
+}
