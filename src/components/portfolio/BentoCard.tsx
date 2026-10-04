@@ -1,5 +1,4 @@
 import type { BentoItem } from './bentoData'
-import { CATEGORY_LABEL } from './bentoData'
 
 interface Props {
   item: BentoItem
@@ -25,14 +24,6 @@ export function BentoCard({ item, weight, onOpen }: Props) {
           <img src={item.src} alt="" loading="lazy" draggable={false} />
         )}
       </div>
-      <span className="pf-card__shade" aria-hidden="true" />
-      <span className="pf-card__chip">
-        {CATEGORY_LABEL[item.category]} · {item.year}
-      </span>
-      <span className="pf-card__arrow" aria-hidden="true">
-        {item.kind === 'video' ? '▶' : '↗'}
-      </span>
-      <span className="pf-card__title">{item.title}</span>
     </button>
   )
 }

@@ -21,7 +21,7 @@ gsap.registerPlugin(ScrollTrigger)
  */
 const REST_TOP = 84
 /** Model scale (relative to the fullscreen hero) once it sits in its card; ModelStage caps it per model so nothing gets cut off. */
-const DOCKED_MODEL_ZOOM = 1.2
+const DOCKED_MODEL_ZOOM = 1.05
 
 export function PortfolioPage() {
   const rootRef = useRef<HTMLDivElement>(null)
@@ -289,10 +289,6 @@ export function PortfolioPage() {
               <div className="pf-hero__layer" ref={layerRef}>
                 <ShowcaseScene showNav={false} active={heroLive} />
               </div>
-              {/* hover hint, only visible once docked: tap = back home, drag = spin the model */}
-              <span className="pf-card__arrow" aria-hidden="true">
-                ↑
-              </span>
             </div>
           }
         />
