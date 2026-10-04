@@ -11,8 +11,8 @@ import { useGrabRotate } from './useGrabRotate'
 // Each model type gets its own height budget (relative to the stage's visible
 // height) since a phone reads very differently from a boxy CRT at the same size.
 const HEIGHT_FRACTION: Record<ModelShowcaseItem['model'], number> = {
-  card: 0.56,
-  phone: 0.74,
+  card: 0.53,
+  phone: 0.7,
   oldpc: 0.57,
 }
 
@@ -28,7 +28,8 @@ export function ModelStage({ item, onOpenPopup }: Props) {
   const { onPointerDown, dragging } = useGrabRotate(groupRef, onOpenPopup)
   const [hovered, setHovered] = useState(false)
   // heroZoom is driven by the scroll transition (1 = fullscreen hero, <1 when docked in its card)
-  useFrame(() => zoomRef.current?.scale.setScalar(heroZoom.value))
+  // (capped so a tall model like the phone can't outgrow the canvas and get its ends cut off)
+  useFrame(() => zoomRef.current?.scale.setScalar(Math.min(heroZoom.value, 0.88 / HEIGHT_FRACTION[item.model])))
   const size = viewport.height * HEIGHT_FRACTION[item.model]
 
   return (

@@ -6,22 +6,23 @@ import { roundedFaceGeometry, roundedSlabGeometry } from './geometry'
 import { useScreenTexture } from './useScreenTexture'
 
 /**
- * A modern-flagship-phone mockup (flat titanium-style frame, Dynamic-Island
- * style pill, three-lens camera bump, side buttons) — no logos anywhere.
- * `item.thumbnail` goes on the screen, cropped to fill.
+ * An iPhone 17 Pro-style mockup in a dark "deep blue" finish: flat aluminium unibody
+ * frame, thin bezels, Dynamic-Island pill, the wide full-width camera plateau with a
+ * three-lens triangle, Action / volume / side / Camera Control buttons — and no logo
+ * anywhere. `item.thumbnail` goes on the screen, cropped to fill.
  */
 export function PhoneModel({ item, size }: { item: ModelShowcaseItem; size: number }) {
   const height = size
   const width = height * 0.482
-  const depth = width * 0.115
-  const bevel = depth * 0.16
-  const radius = width * 0.155
+  const depth = width * 0.092 // slim
+  const bevel = depth * 0.2
+  const radius = width * 0.17
 
   const rim = width * 0.012
   const glassW = width - 2 * bevel - 2 * rim
   const glassH = height - 2 * bevel - 2 * rim
   const glassR = radius - bevel - rim
-  const inset = width * 0.03
+  const inset = width * 0.014 // thin bezels
   const screenW = glassW - 2 * inset
   const screenH = glassH - 2 * inset
   const screenR = glassR - inset
@@ -33,9 +34,9 @@ export function PhoneModel({ item, size }: { item: ModelShowcaseItem; size: numb
 
   const screenTexture = useScreenTexture(item.thumbnail, item.title, item.tone, screenW / screenH)
 
-  const frameMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#77746f', metalness: 0.92, roughness: 0.3 }), [])
+  const frameMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#2b3548', metalness: 0.88, roughness: 0.34 }), [])
   const glassMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#040405', roughness: 0.2, metalness: 0, specularIntensity: 0.35, clearcoat: 0.25, clearcoatRoughness: 0.15 }), [])
-  const backGlassMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#34353a', roughness: 0.55, metalness: 0.15, clearcoat: 0.3, clearcoatRoughness: 0.5 }), [])
+  const backGlassMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#222a3a', roughness: 0.5, metalness: 0.45, clearcoat: 0.25, clearcoatRoughness: 0.55 }), [])
   const screenMat = useMemo(
     () => new THREE.MeshStandardMaterial({ map: screenTexture, emissiveMap: screenTexture, emissive: '#ffffff', emissiveIntensity: 0.75, roughness: 0.35, metalness: 0 }),
     [screenTexture],
@@ -47,26 +48,29 @@ export function PhoneModel({ item, size }: { item: ModelShowcaseItem; size: numb
 
   // side buttons: [x side, y (fraction of height), length (fraction of height)]
   const buttons: [number, number, number][] = [
-    [-1, 0.27, 0.035],
-    [-1, 0.17, 0.07],
-    [-1, 0.06, 0.07],
-    [1, 0.16, 0.1],
+    [-1, 0.28, 0.03], // Action button
+    [-1, 0.2, 0.062], // volume up
+    [-1, 0.115, 0.062], // volume down
+    [1, 0.19, 0.1], // side button
+    [1, -0.14, 0.05], // Camera Control
   ]
-  const buttonGeo = useMemo(() => new RoundedBoxGeometry(0.016, 1, depth * 0.38, 3, 0.006), [depth])
+  const buttonGeo = useMemo(() => new RoundedBoxGeometry(0.014, 1, depth * 0.34, 3, 0.005), [depth])
 
-  // back camera bump
-  const bumpW = width * 0.44
-  const bumpDepth = width * 0.05
-  const bump = useMemo(() => roundedSlabGeometry(bumpW, bumpW, bumpDepth, bumpW * 0.24, bumpDepth * 0.25), [bumpW, bumpDepth])
-  const bumpMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#3c3d42', roughness: 0.25, metalness: 0.35, clearcoat: 0.8 }), [])
-  const ringMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#8a8782', metalness: 0.95, roughness: 0.25 }), [])
-  const lensMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#0a1020', roughness: 0.05, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.03 }), [])
-  const flashMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#f1ead8', roughness: 0.4 }), [])
-  const lr = bumpW * 0.2
+  // back camera plateau: spans the whole width, flush with the frame
+  const bumpW = width * 0.975
+  const bumpH = width * 0.5
+  const bumpDepth = width * 0.034
+  const bump = useMemo(() => roundedSlabGeometry(bumpW, bumpH, bumpDepth, width * 0.13, bumpDepth * 0.3), [bumpW, bumpH, bumpDepth, width])
+  const bumpMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#283146', roughness: 0.3, metalness: 0.5, clearcoat: 0.7, clearcoatRoughness: 0.25 }), [])
+  const ringMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#4a5266', metalness: 0.95, roughness: 0.25 }), [])
+  const lensMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#070b16', roughness: 0.05, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.03 }), [])
+  const flashMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#e9e4d6', roughness: 0.4 }), [])
+  const lr = width * 0.108
+  // [x, y] in units of `width` from the plateau's centre — two stacked on the left, one beside them
   const lenses: [number, number][] = [
-    [-0.21, 0.2],
-    [-0.21, -0.2],
-    [0.2, 0],
+    [-0.28, 0.115],
+    [-0.28, -0.115],
+    [-0.05, 0],
   ]
 
   return (
@@ -86,23 +90,27 @@ export function PhoneModel({ item, size }: { item: ModelShowcaseItem; size: numb
       {/* back: viewed from behind, +x is the viewer's right */}
       <group rotation={[0, Math.PI, 0]} position={[0, 0, -front]}>
         <mesh geometry={glass} material={backGlassMat} position={[0, 0, eps]} />
-        <group position={[-(width / 2 - width * 0.06 - bumpW / 2), height / 2 - width * 0.06 - bumpW / 2, 0]}>
+        <group position={[0, height / 2 - bumpH / 2 - width * 0.012, 0]}>
           <mesh geometry={bump} material={bumpMat} position={[0, 0, bumpDepth / 2]} />
           {lenses.map(([lx, ly], i) => (
-            <group key={i} position={[lx * bumpW, ly * bumpW, bumpDepth]}>
+            <group key={i} position={[lx * width, ly * width, bumpDepth]}>
               <mesh material={ringMat} position={[0, 0, bumpDepth * 0.18]} rotation={[Math.PI / 2, 0, 0]}>
-                <cylinderGeometry args={[lr, lr, bumpDepth * 0.36, 40]} />
+                <cylinderGeometry args={[lr, lr, bumpDepth * 0.36, 48]} />
               </mesh>
               <mesh material={lensMat} position={[0, 0, bumpDepth * 0.2]} rotation={[Math.PI / 2, 0, 0]}>
-                <cylinderGeometry args={[lr * 0.72, lr * 0.72, bumpDepth * 0.4, 40]} />
+                <cylinderGeometry args={[lr * 0.74, lr * 0.74, bumpDepth * 0.4, 48]} />
               </mesh>
             </group>
           ))}
-          <mesh material={flashMat} position={[0.25 * bumpW, 0.31 * bumpW, bumpDepth + 0.001]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[bumpW * 0.065, bumpW * 0.065, 0.004, 24]} />
+          {/* flash, microphone, LiDAR */}
+          <mesh material={flashMat} position={[0.27 * width, 0.13 * width, bumpDepth + 0.001]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[width * 0.036, width * 0.036, 0.004, 28]} />
           </mesh>
-          <mesh material={blackMat} position={[0.28 * bumpW, -0.3 * bumpW, bumpDepth + 0.001]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[bumpW * 0.05, bumpW * 0.05, 0.004, 24]} />
+          <mesh material={blackMat} position={[0.27 * width, -0.1 * width, bumpDepth + 0.001]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[width * 0.036, width * 0.036, 0.004, 28]} />
+          </mesh>
+          <mesh material={blackMat} position={[0.15 * width, 0.15 * width, bumpDepth + 0.001]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[width * 0.012, width * 0.012, 0.004, 16]} />
           </mesh>
         </group>
       </group>

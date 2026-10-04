@@ -87,7 +87,10 @@ export function ShowcaseScene({ showNav = true, active = true }: SceneProps) {
       <div className="sc-viewport">
         <div className="sc-stage" style={style}>
           <Canvas
-            dpr={[1, 2]}
+            dpr={[1, 1.5]}
+            // measure the untransformed layout size: the portfolio page scales this whole scene with a
+            // CSS transform, and getBoundingClientRect (the default) would report the shrunken size
+            resize={{ scroll: false, offsetSize: true }}
             frameloop={active ? 'always' : 'never'}
             gl={{ antialias: true }}
             camera={{ position: [0, 0, 4.2], fov: 32 }}

@@ -35,6 +35,8 @@ const PAIRS: Array<[number, number]> = [
   [1, 1.7],
 ]
 const PAIR_ASPECTS = [2.1, 2.35, 2.6, 2.9]
+/** Every row is this fraction of its original height (so 0.65 = 35% shorter). */
+const HEIGHT_FACTOR = 0.65
 
 /**
  * Rows of 1 or 2 cells (never more than 2). The first row is always [hero, next] with the
@@ -61,8 +63,8 @@ export function buildRows(items: BentoItem[], seed = 7): BentoRow[] {
       let pick = Math.floor(rng() * PAIRS.length)
       if (pick === lastPair) pick = (pick + 1) % PAIRS.length
       lastPair = pick
-      const [wl, wr] = rowIndex === 0 ? [1.45, 1] : PAIRS[pick]
-      const aspect = rowIndex === 0 ? 2.2 : PAIR_ASPECTS[Math.floor(rng() * PAIR_ASPECTS.length)]
+      const [wl, wr] = rowIndex === 0 ? [1, 1] : PAIRS[pick]
+      const aspect = (rowIndex === 0 ? 2.2 : PAIR_ASPECTS[Math.floor(rng() * PAIR_ASPECTS.length)]) / HEIGHT_FACTOR
       rows.push({
         aspect,
         cells: [
@@ -72,7 +74,9 @@ export function buildRows(items: BentoItem[], seed = 7): BentoRow[] {
       })
       i += 2
     } else {
-      rows.push({ aspect: 2.9 + rng() * 0.6, cells: [{ item: cells[i], weight: 1 }] })
+      const wide = (2.9 + rng() * 0.6) / HEIGHT_FACTOR
+      // the full-width box right under the hero row is the tall one (it holds a video)
+      rows.push({ aspect: rowIndex === 1 ? 2.6 : wide, cells: [{ item: cells[i], weight: 1 }] })
       i += 1
     }
   }

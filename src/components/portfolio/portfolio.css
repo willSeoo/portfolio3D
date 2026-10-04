@@ -1,5 +1,5 @@
 :root {
-  --pf-bg: #eceef1;
+  --pf-bg: #ffffff;
   --pf-radius: 28px;
   --pf-gap: 20px;
 }
@@ -23,7 +23,7 @@
 
 /* ---------- Bento grid: never full-bleed, always air on both sides ---------- */
 .pf-bento {
-  width: min(1120px, calc(100% - 2 * clamp(1.25rem, 8vw, 8rem)));
+  width: min(1240px, calc(100% - 2 * clamp(1.25rem, 8vw, 8rem)));
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -54,7 +54,38 @@
   height: 100%;
   z-index: 20;
   overflow: hidden;
-  background: #fafbfc;
+  background: #f9fafb;
+}
+/* Docked in its bento: only the 3D object — no caption, no arrows. */
+.pf-hero .sc-root {
+  background: #f9fafb;
+}
+.pf-hero__home {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.pf-hero.is-docked .pf-hero__home {
+  pointer-events: auto;
+}
+.pf-hero__home:hover .pf-card__arrow,
+.pf-hero__home:focus-visible .pf-card__arrow {
+  opacity: 1;
+  transform: none;
+}
+.pf-hero .sc-caption,
+.pf-hero .sc-arrow {
+  opacity: calc(1 - var(--dock, 0));
+}
+.pf-hero.is-docked .sc-caption,
+.pf-hero.is-docked .sc-arrow {
+  pointer-events: none;
 }
 .pf-hero__layer {
   position: absolute;
@@ -165,7 +196,7 @@
 }
 
 .pf-footer {
-  width: min(1120px, calc(100% - 2 * clamp(1.25rem, 8vw, 8rem)));
+  width: min(1240px, calc(100% - 2 * clamp(1.25rem, 8vw, 8rem)));
   margin: 0 auto;
   padding: 4rem 0 3rem;
   display: flex;
@@ -174,35 +205,35 @@
   font-size: 0.9rem;
 }
 
-/* ---------- Navbar: full-width header → compact bar just wider than the grid ----------
-   JS only writes --np (0..1) and --nav-final (px); every property below interpolates from them. */
+/* ---------- Navbar: airy header over the hero → slim, flat, frosted bar stuck to the top ----------
+   JS only writes --np (0..1) and --nav-pad (px); every property below interpolates from them. */
 .pf-nav {
   --np: 0;
-  --nav-final: 1000px;
+  --nav-pad: 24px;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 60;
-  display: flex;
-  justify-content: center;
   pointer-events: none;
-  padding-top: calc(var(--np) * 0.75rem);
 }
 .pf-nav__bar {
   pointer-events: auto;
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  width: calc(100% - var(--np) * (100% - var(--nav-final)));
-  height: calc(6.5rem - var(--np) * 3rem);
-  padding: 0 calc((1 - var(--np)) * 7.5vw + var(--np) * 1.1rem);
-  border-radius: calc(var(--np) * 999px);
-  background: rgba(255, 255, 255, calc(var(--np) * 0.8));
-  -webkit-backdrop-filter: blur(calc(var(--np) * 18px)) saturate(1.2);
-  backdrop-filter: blur(calc(var(--np) * 18px)) saturate(1.2);
-  border: 1px solid rgba(21, 21, 21, calc(var(--np) * 0.07));
-  box-shadow: 0 10px 30px -18px rgba(20, 22, 28, calc(var(--np) * 0.35));
+  width: 100%;
+  height: calc(6.5rem - var(--np) * 3.25rem);
+  /* content sits at 7.5vw over the hero, then lines up with the bento grid's edges */
+  padding: 0 calc((1 - var(--np)) * 7.5vw + var(--np) * var(--nav-pad));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, calc(var(--np) * 0.92)) 0%,
+    rgba(249, 250, 251, calc(var(--np) * 0.86)) 100%
+  );
+  -webkit-backdrop-filter: blur(calc(var(--np) * 20px)) saturate(calc(1 + var(--np) * 0.8));
+  backdrop-filter: blur(calc(var(--np) * 20px)) saturate(calc(1 + var(--np) * 0.8));
+  border-bottom: 1px solid rgba(21, 21, 21, calc(var(--np) * 0.07));
 }
 .pf-nav__logo {
   color: var(--ink);
@@ -210,14 +241,18 @@
   place-items: center;
   text-decoration: none;
 }
+.pf-nav__logo svg {
+  width: calc(26px - var(--np) * 6px);
+  height: calc(26px - var(--np) * 6px);
+}
 .pf-nav__links {
   display: flex;
   align-items: center;
-  gap: 2.4rem;
+  gap: calc(2.4rem - var(--np) * 0.6rem);
   margin-left: clamp(2.5rem, 6vw, 5.5rem);
 }
 .pf-nav__link {
-  font-size: 1.08rem;
+  font-size: calc(1.08rem - var(--np) * 0.15rem);
   color: #8a8d92;
   text-decoration: none;
   transition: color 0.15s;
@@ -239,9 +274,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: calc(0.8rem - var(--np) * 0.25rem) calc(1.55rem - var(--np) * 0.4rem);
+  padding: calc(0.8rem - var(--np) * 0.38rem) calc(1.55rem - var(--np) * 0.55rem);
   border-radius: 999px;
-  font-size: 1.05rem;
+  font-size: calc(1.05rem - var(--np) * 0.15rem);
   font-weight: 500;
   text-decoration: none;
   white-space: nowrap;
@@ -397,7 +432,7 @@
     display: none;
   }
   .pf-nav__bar {
-    padding: 0 calc((1 - var(--np)) * 1.25rem + var(--np) * 1rem);
+    padding: 0 calc((1 - var(--np)) * 1.25rem + var(--np) * var(--nav-pad));
   }
   .pf-lb__caption {
     font-size: 0.92rem;

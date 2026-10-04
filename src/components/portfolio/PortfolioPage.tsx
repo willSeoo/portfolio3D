@@ -19,9 +19,9 @@ gsap.registerPlugin(ScrollTrigger)
  * Where (px from the top of the screen) bento #1 rests once the transition is complete —
  * just under the compact navbar.
  */
-const REST_TOP = 96
-/** Model scale (relative to the fullscreen hero) once it sits in its card — <1 keeps its tips clear of the card's top/bottom edges. */
-const DOCKED_MODEL_ZOOM = 0.9
+const REST_TOP = 84
+/** Model scale (relative to the fullscreen hero) once it sits in its card; ModelStage caps it per model so nothing gets cut off. */
+const DOCKED_MODEL_ZOOM = 1.2
 
 const shadow = (e: number) =>
   `0 1px 2px rgba(20,22,28,${(0.04 * e).toFixed(3)}), 0 ${(14 * e).toFixed(1)}px ${(36 * e).toFixed(1)}px ${(-16 * e).toFixed(1)}px rgba(20,22,28,${(0.22 * e).toFixed(3)})`
@@ -73,14 +73,23 @@ export function PortfolioPage() {
     const nav = navRef.current!
 
     // Everything the animation needs, measured from the real DOM (never hard-coded).
-    const m = { vw: 0, vh: 0, L: 0, slotX: 0, slotDocY: 0, slotW: 0, slotH: 0, radius: 28 }
+    const m = { vw: 0, vh: 0, L: 0, slotX: 0, slotDocY: 0, slotW: 0, slotH: 0, radius: 28, stageCx: 0, stageCy: 0, stageH: 1 }
     const proxy = { p: 0 }
     let mode: 'fly' | 'dock' | null = null
 
-    /** Fit the fixed-size hero layer (viewport-sized composition) into a w × h box, centred. */
-    const fitLayer = (w: number, h: number) => {
-      const s = Math.min(w / m.vw, h / m.vh)
-      layer.style.transform = `translate3d(${((w - m.vw * s) / 2).toFixed(2)}px, ${((h - m.vh * s) / 2).toFixed(2)}px, 0) scale(${s.toFixed(5)})`
+    /**
+     * Place the viewport-sized hero composition inside a w × h box. e = 0 → the whole
+     * composition is fitted (fullscreen look); e = 1 → only the 3D stage is shown, its
+     * centre on the box centre and its height filling the box, so the card model sits
+     * dead-centre in the bento with no caption or arrows around it.
+     */
+    const fitLayer = (w: number, h: number, e: number) => {
+      const sFull = Math.min(w / m.vw, h / m.vh)
+      const sStage = h / m.stageH
+      const s = lerp(sFull, sStage, e)
+      const cx = lerp(m.vw / 2, m.stageCx, e)
+      const cy = lerp(m.vh / 2, m.stageCy, e)
+      layer.style.transform = `translate3d(${(w / 2 - cx * s).toFixed(2)}px, ${(h / 2 - cy * s).toFixed(2)}px, 0) scale(${s.toFixed(5)})`
     }
 
     const measure = () => {
@@ -102,9 +111,21 @@ export function PortfolioPage() {
       m.slotH = r.height
       m.radius = parseFloat(getComputedStyle(slot).borderTopLeftRadius) || 28
 
-      // The nav ends up a little wider than the grid.
+      // The 3D stage inside the composition (the part that stays when docked).
+      const stage = layer.querySelector<HTMLElement>('.sc-viewport')
+      if (stage) {
+        m.stageCx = stage.offsetLeft + stage.offsetWidth / 2
+        m.stageCy = stage.offsetTop + stage.offsetHeight / 2
+        m.stageH = Math.max(stage.offsetHeight, 1)
+      } else {
+        m.stageCx = m.vw / 2
+        m.stageCy = m.vh / 2
+        m.stageH = m.vh
+      }
+
+      // The nav bar is full-width when stuck, but its content lines up with the grid's edges.
       const gridW = grid.getBoundingClientRect().width
-      nav.style.setProperty('--nav-final', `${Math.min(gridW + 56, m.vw - 16).toFixed(0)}px`)
+      nav.style.setProperty('--nav-pad', `${Math.max((m.vw - gridW) / 2, 16).toFixed(0)}px`)
       mode = null // force a full restyle on the next apply()
     }
 
@@ -119,8 +140,10 @@ export function PortfolioPage() {
         hero.style.transform = 'none'
         hero.style.borderRadius = `${m.radius}px`
         hero.style.boxShadow = shadow(1)
+        hero.style.setProperty('--dock', '1')
+        hero.classList.add('is-docked')
       }
-      fitLayer(m.slotW, m.slotH)
+      fitLayer(m.slotW, m.slotH, 1)
       heroZoom.value = DOCKED_MODEL_ZOOM
     }
 
@@ -141,7 +164,10 @@ export function PortfolioPage() {
       hero.style.transform = `translate3d(${x.toFixed(2)}px, ${yy.toFixed(2)}px, 0)`
       hero.style.borderRadius = `${lerp(0, m.radius, e).toFixed(2)}px`
       hero.style.boxShadow = shadow(e)
-      fitLayer(w, h)
+      fitLayer(w, h, e)
+      const d = smoothstep(0.2, 0.75, e) // caption + arrows fade out on the way in
+      hero.style.setProperty('--dock', d.toFixed(3))
+      hero.classList.toggle('is-docked', d > 0.6)
       heroZoom.value = lerp(1, DOCKED_MODEL_ZOOM, e)
     }
 
@@ -251,6 +277,18 @@ export function PortfolioPage() {
               <div className="pf-hero__layer" ref={layerRef}>
                 <ShowcaseScene showNav={false} active={heroLive} />
               </div>
+              {/* Only live once the hero sits in its bento: a click takes you back home (top). */}
+              <button
+                type="button"
+                className="pf-hero__home"
+                aria-label="Back to home"
+                tabIndex={-1}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                <span className="pf-card__arrow" aria-hidden="true">
+                  ↑
+                </span>
+              </button>
             </div>
           }
         />

@@ -23,6 +23,7 @@ export const CATEGORY_LABEL: Record<BentoCategory, string> = {
 }
 
 // Bento #1 is always the 3D hero (the carousel) — these are bento #2 onwards.
+// Order matters: item 1 is bento #2 (top right), item 2 is bento #3 — the tall full-width box, a video.
 // Swap `src` for your own files any time: drop them in /public/assets/ and use '/assets/xxx.jpg',
 // or paste any URL. The picsum.photos images are placeholders. Add or remove items freely —
 // the grid re-flows itself.
@@ -39,16 +40,6 @@ export const bentoItems: BentoItem[] = [
     href: '/projects/ledger',
   },
   {
-    id: 'brutalist-type',
-    category: 'philosophy',
-    title: 'Make it slowly',
-    year: '2026',
-    blurb:
-      'Notes on craft: why the third pass over a detail is usually where a thing starts to feel inevitable instead of merely finished.',
-    kind: 'image',
-    src: 'https://picsum.photos/seed/slow-craft/1800/900',
-  },
-  {
     id: 'flower-loop',
     category: 'fun',
     title: 'Loop study',
@@ -57,6 +48,16 @@ export const bentoItems: BentoItem[] = [
     kind: 'video',
     src: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
     poster: 'https://picsum.photos/seed/loop-study/1200/800',
+  },
+  {
+    id: 'brutalist-type',
+    category: 'philosophy',
+    title: 'Make it slowly',
+    year: '2026',
+    blurb:
+      'Notes on craft: why the third pass over a detail is usually where a thing starts to feel inevitable instead of merely finished.',
+    kind: 'image',
+    src: 'https://picsum.photos/seed/slow-craft/1800/900',
   },
   {
     id: 'comick',

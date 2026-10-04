@@ -39,15 +39,21 @@ export function BentoLightbox({ item, originEl, onClosed }: Props) {
   const [vp, setVp] = useState({ w: window.innerWidth, h: window.innerHeight })
   const closeBtn = useRef<HTMLButtonElement>(null)
   const timer = useRef<number>(0)
+  const closingRef = useRef(false)
+  const onClosedRef = useRef(onClosed)
+  onClosedRef.current = onClosed
 
   const target = useMemo(() => targetRect(vp.w, vp.h), [vp])
 
+  // Stable identity on purpose: the key/resize effect below must not re-run (and wipe the
+  // close timer) just because we flipped into the closing state.
   const close = useCallback(() => {
-    if (closing) return
+    if (closingRef.current) return
+    closingRef.current = true
     setClosing(true)
     setOpen(false)
-    timer.current = window.setTimeout(onClosed, DURATION)
-  }, [closing, onClosed])
+    timer.current = window.setTimeout(() => onClosedRef.current(), DURATION)
+  }, [])
 
   // mount → next frames → open (so the browser has painted the "from" state first)
   useEffect(() => {
@@ -64,23 +70,30 @@ export function BentoLightbox({ item, originEl, onClosed }: Props) {
     }
   }, [])
 
+  // Escape closes. (Separate from the effect below: `close` changes identity the moment
+  // closing starts, and re-running a combined effect used to clear the close timer — the
+  // overlay then never unmounted and the whole page stayed dead.)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') close()
     }
-    const onResize = () => setVp({ w: window.innerWidth, h: window.innerHeight })
     window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [close])
+
+  // mount/unmount only: lock page scroll, track the viewport, hand focus back.
+  useEffect(() => {
+    const onResize = () => setVp({ w: window.innerWidth, h: window.innerHeight })
     window.addEventListener('resize', onResize)
     const prev = document.documentElement.style.overflow
     document.documentElement.style.overflow = 'hidden' // page stays put under the blur
     return () => {
-      window.removeEventListener('keydown', onKey)
       window.removeEventListener('resize', onResize)
       document.documentElement.style.overflow = prev
       window.clearTimeout(timer.current)
       originEl.focus?.({ preventScroll: true })
     }
-  }, [close, originEl])
+  }, [originEl])
 
   // on close, shrink back into wherever the card is *now*
   const from = closing && originEl.isConnected
