@@ -154,8 +154,16 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  border: 1px solid rgba(17, 24, 39, 0.1);
+  border: 1px solid rgba(17, 24, 39, 0.055);
   pointer-events: none;
+}
+/* hairline on high-density screens */
+@media (min-resolution: 2dppx) {
+  .pf-card::after,
+  .pf-hero::after {
+    border-width: 0.5px;
+    border-color: rgba(17, 24, 39, 0.09);
+  }
 }
 .pf-hero::after {
   z-index: 4;

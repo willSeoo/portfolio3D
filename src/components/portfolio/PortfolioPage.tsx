@@ -23,9 +23,9 @@ const REST_TOP = 84
 /** Model scale (relative to the fullscreen hero) once it sits in its card; ModelStage caps it per model so nothing gets cut off. */
 const DOCKED_MODEL_ZOOM = 1.05
 /** Where the grid starts (fraction of the viewport height, from the top). Closer to the top → less downward drift. */
-const GRID_START = 0.55
+const GRID_START = 0.62
 /** How front-loaded the grid's rise is vs. the hero's shrink (1 = same pace, higher = grid arrives first). */
-const GRID_RISE = 2.4
+const GRID_RISE = 1.8
 
 export function PortfolioPage() {
   const rootRef = useRef<HTMLDivElement>(null)
