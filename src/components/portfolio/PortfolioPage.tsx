@@ -22,6 +22,10 @@ gsap.registerPlugin(ScrollTrigger)
 const REST_TOP = 84
 /** Model scale (relative to the fullscreen hero) once it sits in its card; ModelStage caps it per model so nothing gets cut off. */
 const DOCKED_MODEL_ZOOM = 1.05
+/** Where the grid starts (fraction of the viewport height, from the top). Closer to the top → less downward drift. */
+const GRID_START = 0.55
+/** How front-loaded the grid's rise is vs. the hero's shrink (1 = same pace, higher = grid arrives first). */
+const GRID_RISE = 2.4
 
 export function PortfolioPage() {
   const rootRef = useRef<HTMLDivElement>(null)
@@ -180,12 +184,13 @@ export function PortfolioPage() {
         mode = 'zoom'
         const e = easeInOutSine(p)
 
-        // 1) the grid rises from just above the fold to its resting place
-        const ty = lerp(m.vh * 0.85, REST_TOP, e)
+        // 1) the grid rises fast (ahead of the hero) from a point already well inside the screen
+        const g = 1 - Math.pow(1 - e, GRID_RISE)
+        const ty = lerp(m.vh * GRID_START, REST_TOP, g)
         stage.classList.add('is-pinned')
         stage.style.transform = `translate3d(0, ${ty.toFixed(2)}px, 0)`
 
-        // 2) the hero heads for bento #1's live position (which is moving up as we go)
+        // 2) the hero heads for bento #1's live position (which gets there ahead of it, so the hero is always chasing a card that is already rising)
         const sx = m.slotLX
         const sy = ty + m.slotLY // slot's current top, in screen px
         const hx = lerp(0, sx, e)
