@@ -1,0 +1,93 @@
+/* Hide the system cursor everywhere while the custom one is active… */
+html.cur-on,
+html.cur-on * {
+  cursor: none !important;
+}
+/* …except over a 3D model, which keeps the system grab / grabbing hand on purpose. */
+html[data-model='grab'],
+html[data-model='grab'] * {
+  cursor: grab !important;
+}
+html[data-model='grabbing'],
+html[data-model='grabbing'] * {
+  cursor: grabbing !important;
+}
+
+.cur {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  will-change: transform;
+  transition: opacity 0.18s ease;
+}
+.cur.is-hidden {
+  opacity: 0;
+}
+
+/* default: small grey dot */
+.cur__dot {
+  position: absolute;
+  left: -7px;
+  top: -7px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #9aa0a8;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);
+  transition:
+    transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.18s ease,
+    background-color 0.2s ease;
+}
+/* over something clickable: swells a little */
+.cur.is-link .cur__dot {
+  transform: scale(1.75);
+  background: #a9afb7;
+}
+.cur.is-down .cur__dot {
+  transform: scale(0.82);
+}
+.cur.is-link.is-down .cur__dot {
+  transform: scale(1.4);
+}
+
+/* over a bento: the dot turns into a label pill */
+.cur__pill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.52rem 0.9rem 0.52rem 0.72rem;
+  border-radius: 999px;
+  background: rgba(18, 19, 22, 0.92);
+  color: #fff;
+  font-family: system-ui, sans-serif; /* same stack as the page (the cursor lives outside .pf) */
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6);
+  transition:
+    transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.18s ease;
+}
+.cur__pill svg {
+  flex: none;
+}
+.cur.is-label .cur__dot {
+  transform: scale(0);
+  opacity: 0;
+}
+.cur.is-label .cur__pill {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+.cur.is-label.is-down .cur__pill {
+  transform: translate(-50%, -50%) scale(0.94);
+}

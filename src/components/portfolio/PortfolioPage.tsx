@@ -155,6 +155,17 @@ export function PortfolioPage() {
       mode = null // force a full restyle on the next apply()
     }
 
+    // docked in bento #1, the custom cursor shows what a click does (the 3D model itself keeps its grab hand)
+    const setHeroLabel = (on: boolean) => {
+      if (on) {
+        hero.dataset.cursorLabel = 'Back to home'
+        hero.dataset.cursorIcon = 'up'
+      } else {
+        delete hero.dataset.cursorLabel
+        delete hero.dataset.cursorIcon
+      }
+    }
+
     const setHeroBox = (x: number, y: number, w: number, h: number) => {
       hero.style.left = `${x.toFixed(2)}px`
       hero.style.top = `${y.toFixed(2)}px`
@@ -177,6 +188,7 @@ export function PortfolioPage() {
           hero.style.setProperty('--dock', '1')
           hero.classList.add('is-docked')
           heroZoom.docked = true
+          setHeroLabel(true)
         }
         fitLayer(m.slotW, m.slotH, 1)
         heroZoom.value = DOCKED_MODEL_ZOOM
@@ -205,6 +217,7 @@ export function PortfolioPage() {
         hero.style.setProperty('--dock', d.toFixed(3))
         hero.classList.toggle('is-docked', d > 0.6)
         heroZoom.docked = d > 0.6
+        setHeroLabel(d > 0.6)
         heroZoom.value = lerp(1, DOCKED_MODEL_ZOOM, e)
       }
       syncActive()

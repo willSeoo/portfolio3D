@@ -14,6 +14,7 @@ export function BentoCard({ item, weight, onOpen }: Props) {
       style={{ flexGrow: weight }}
       data-cat={item.category}
       data-reveal
+      data-cursor-label={item.kind === 'video' ? 'Open this video' : 'Open this project'}
       aria-label={`Open ${item.title}`}
       onClick={(e) => onOpen(item, e.currentTarget)}
     >
