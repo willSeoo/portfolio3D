@@ -7,13 +7,23 @@ export interface BentoItem {
   year: string
   /** Text shown under the expanded view. */
   blurb: string
-  kind: 'image' | 'video'
+  kind: 'image' | 'video' | 'experience'
   /** Image URL, or the video file URL when kind === 'video'. */
   src: string
   /** Video only: still frame shown before it loads. */
   poster?: string
   /** Optional: where the ↗ arrow in the expanded view goes (case study, repo, …). */
   href?: string
+  /** kind === 'experience': the scrollable list shown right inside the card (no lightbox). */
+  heading?: string
+  entries?: ExperienceEntry[]
+}
+
+export interface ExperienceEntry {
+  from: string
+  to: string
+  title: string
+  text: string
 }
 
 export const CATEGORY_LABEL: Record<BentoCategory, string> = {
@@ -29,15 +39,22 @@ export const CATEGORY_LABEL: Record<BentoCategory, string> = {
 // the grid re-flows itself.
 export const bentoItems: BentoItem[] = [
   {
-    id: 'ledger',
+    id: 'experience',
     category: 'work',
-    title: 'Ledger — finance agent UI',
-    year: '2026',
-    blurb:
-      'Interface for an AI bookkeeping agent: it asks clarifying questions, drafts a plan, and waits for approval before touching a single entry.',
-    kind: 'image',
-    src: 'https://picsum.photos/seed/ledger-ui/1600/1000',
-    href: '/projects/ledger',
+    title: 'Experience',
+    year: '',
+    blurb: '',
+    kind: 'experience',
+    src: '',
+    heading: 'Work',
+    // PLACEHOLDER content — replace with your own history (add or remove entries freely, the card scrolls).
+    entries: [
+      { from: '2025', to: 'Now', title: 'Company Name', text: 'Frontend Developer. Building interactive, 3D-driven web experiences with React and Three.js.' },
+      { from: '2023', to: '2025', title: 'Studio Name', text: 'UI/UX Designer. Took product interfaces from first sketch to shipped, polished screens.' },
+      { from: '2022', to: '2023', title: 'Agency Name', text: 'Web Developer. Landing pages, design systems and motion for client brands.' },
+      { from: '2021', to: '2022', title: 'Freelance', text: 'Designer & developer. Branding, websites and small apps for local businesses.' },
+      { from: '2020', to: '2021', title: 'Company Name', text: 'Junior Developer. First production code, first real deadlines, a lot of learning.' },
+    ],
   },
   {
     id: 'flower-loop',
@@ -97,5 +114,16 @@ export const bentoItems: BentoItem[] = [
     kind: 'image',
     src: 'https://picsum.photos/seed/willi-snapshots/1300/1000',
     href: '/photos',
+  },
+  {
+    id: 'ledger',
+    category: 'work',
+    title: 'Ledger — finance agent UI',
+    year: '2026',
+    blurb:
+      'Interface for an AI bookkeeping agent: it asks clarifying questions, drafts a plan, and waits for approval before touching a single entry.',
+    kind: 'image',
+    src: 'https://picsum.photos/seed/ledger-ui/1600/1000',
+    href: '/projects/ledger',
   },
 ]

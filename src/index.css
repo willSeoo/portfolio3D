@@ -1,2 +1,4 @@
-html { scrollbar-gutter: stable; }
+/* No visible scrollbar anywhere on the page — scrolling itself still works (wheel, touch, keys). */
+html { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar { display: none; width: 0; height: 0; }
 body { margin: 0; background: #ffffff; }
