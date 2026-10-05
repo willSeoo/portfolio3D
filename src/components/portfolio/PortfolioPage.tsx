@@ -75,27 +75,24 @@ export function PortfolioPage() {
     const nav = navRef.current!
 
     /*
-     * THE IDEA — the hero *is* bento #1, just seen from very close up.
-     * The whole grid sits in one wrapper (`stage`). At scroll 0 that wrapper is magnified by S0
-     * so bento #1 exactly covers the viewport (and everything else is off-screen); scrolling
-     * pulls the camera back — a pure zoom about a fixed point — until the scale is 1 and bento
-     * #1 sits in its normal place. Since it is one object, the neighbours travel *with* the hero
-     * and slide in from the right/bottom while it shrinks. No fading, no duplicate card.
-     * While zooming the wrapper is pinned (position: fixed); at the end it drops back into the
-     * normal flow, in exactly the same spot, and the page scrolls natively.
+     * THE IDEA — two things move at once and meet exactly at the end:
+     *  1. the grid (one pinned wrapper, `stage`) rises from the bottom edge up to its resting place;
+     *  2. the fullscreen hero shrinks and travels towards bento #1's *live* position — so it
+     *     dips down a little while the grid comes up to meet it, then settles into the card.
+     * Both are driven by the same scroll progress, so they land together and reverse together.
+     * While this runs the stage is pinned (position: fixed); at the end it drops back into the
+     * normal flow in exactly the same spot and the page scrolls natively.
      */
     const m = {
       vw: 0, vh: 0, L: 0,
       slotLX: 0, slotLY: 0, slotW: 0, slotH: 0, radius: 28,
-      S0: 1, crx: 0, cry: 0, qx: 0, qy: 0,
       stageCx: 0, stageCy: 0, stageH: 1,
     }
     let mode: 'zoom' | 'rest' | null = null
 
     /**
      * Fit the viewport-sized hero composition into a w × h box (the slot, in its own pixels).
-     * e = 0 → the whole composition is fitted, which at S0× magnification is exactly what a
-     * fullscreen hero looks like; e = 1 → only the 3D stage is kept, centred, with its height
+     * e = 0 → the whole composition is fitted (the fullscreen hero); e = 1 → only the 3D stage is kept, centred, with its height
      * filling the box (no caption, no arrows).
      */
     const fitLayer = (w: number, h: number, e: number) => {
@@ -110,7 +107,7 @@ export function PortfolioPage() {
     const measure = () => {
       m.vw = document.documentElement.clientWidth
       m.vh = window.innerHeight
-      m.L = Math.round(clamp(m.vh * 0.6, 360, 640)) // scroll distance of the zoom-out
+      m.L = Math.round(clamp(m.vh * 0.68, 420, 720)) // scroll distance of the transition
       spacer.style.height = `${m.L + REST_TOP}px`
       layer.style.width = `${m.vw}px`
       layer.style.height = `${m.vh}px`
@@ -128,16 +125,6 @@ export function PortfolioPage() {
       m.slotW = r.width
       m.slotH = r.height
       m.radius = parseFloat(getComputedStyle(slot).borderTopLeftRadius) || 28
-
-      // Zoom geometry. S0: magnification at which bento #1 just covers the viewport.
-      m.S0 = Math.max(1.0001, m.vw / m.slotW, m.vh / m.slotH)
-      m.crx = wr.left + m.slotLX + m.slotW / 2 // where bento #1's centre ends up (screen)
-      m.cry = REST_TOP + m.slotLY + m.slotH / 2
-      const cvx = m.vw / 2 // …and where it starts: the middle of the screen
-      const cvy = m.vh / 2
-      // the one point that stays put during a pure zoom (so the move is a straight pull-back)
-      m.qx = (m.S0 * m.crx - cvx) / (m.S0 - 1)
-      m.qy = (m.S0 * m.cry - cvy) / (m.S0 - 1)
 
       // The 3D stage inside the composition (the part that stays when docked).
       const st = layer.querySelector<HTMLElement>('.sc-viewport')
@@ -164,6 +151,13 @@ export function PortfolioPage() {
       mode = null // force a full restyle on the next apply()
     }
 
+    const setHeroBox = (x: number, y: number, w: number, h: number) => {
+      hero.style.left = `${x.toFixed(2)}px`
+      hero.style.top = `${y.toFixed(2)}px`
+      hero.style.width = `${w.toFixed(2)}px`
+      hero.style.height = `${h.toFixed(2)}px`
+    }
+
     const apply = () => {
       const p = clamp(window.scrollY / m.L)
       progressRef.current = p
@@ -174,6 +168,7 @@ export function PortfolioPage() {
           mode = 'rest'
           stage.classList.remove('is-pinned')
           stage.style.transform = 'none'
+          setHeroBox(0, 0, m.slotW, m.slotH)
           hero.style.borderRadius = `${m.radius}px`
           hero.style.setProperty('--dock', '1')
           hero.classList.add('is-docked')
@@ -184,17 +179,23 @@ export function PortfolioPage() {
       } else {
         mode = 'zoom'
         const e = easeInOutSine(p)
-        const s = Math.pow(m.S0, 1 - e) // geometric: the zoom keeps a constant visual speed
-        // bento #1's centre, pulled in along the straight line towards its resting place
-        const cx = m.qx + s * (m.crx - m.qx)
-        const cy = m.qy + s * (m.cry - m.qy)
-        const tx = cx - s * (m.slotLX + m.slotW / 2)
-        const ty = cy - s * (m.slotLY + m.slotH / 2)
+
+        // 1) the grid rises from just above the fold to its resting place
+        const ty = lerp(m.vh * 0.85, REST_TOP, e)
         stage.classList.add('is-pinned')
-        stage.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) scale(${s.toFixed(5)})`
-        // square-cornered when fullscreen, card-rounded when home (kept in screen px, so ÷ s)
-        hero.style.borderRadius = `${(lerp(0, m.radius, e) / s).toFixed(2)}px`
-        fitLayer(m.slotW, m.slotH, e)
+        stage.style.transform = `translate3d(0, ${ty.toFixed(2)}px, 0)`
+
+        // 2) the hero heads for bento #1's live position (which is moving up as we go)
+        const sx = m.slotLX
+        const sy = ty + m.slotLY // slot's current top, in screen px
+        const hx = lerp(0, sx, e)
+        const hy = lerp(0, sy, e)
+        const hw = lerp(m.vw, m.slotW, e)
+        const hh = lerp(m.vh, m.slotH, e)
+        setHeroBox(hx - sx, hy - sy, hw, hh) // hero lives inside the slot, so its box is relative to it
+        hero.style.borderRadius = `${lerp(0, m.radius, e).toFixed(2)}px`
+
+        fitLayer(hw, hh, e)
         const d = smoothstep(0.2, 0.75, e) // caption + arrows fade out on the way in
         hero.style.setProperty('--dock', d.toFixed(3))
         hero.classList.toggle('is-docked', d > 0.6)

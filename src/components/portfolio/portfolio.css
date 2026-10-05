@@ -63,7 +63,11 @@
 /* ---------- The hero (lives inside Bento #1's slot) ---------- */
 .pf-hero {
   position: absolute;
-  inset: 0;
+  /* during the transition JS sets left/top/width/height so it can spill out of the slot */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
   z-index: 2;
   overflow: hidden;
   background: #f9fafb;
