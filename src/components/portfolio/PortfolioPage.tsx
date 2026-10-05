@@ -8,7 +8,7 @@ import { BentoLightbox } from './BentoLightbox'
 import type { BentoItem } from './bentoData'
 import { bentoItems } from './bentoData'
 import { buildRows } from './layout'
-import { clamp, easeInOutCubic, lerp, smoothstep } from './math'
+import { clamp, easeInOutSine, lerp, smoothstep } from './math'
 import { Navbar } from './Navbar'
 import type { NavKey } from './Navbar'
 import './portfolio.css'
@@ -30,6 +30,8 @@ export function PortfolioPage() {
   const layerRef = useRef<HTMLDivElement>(null)
   const slotRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
+  const boxRef = useRef<HTMLDivElement>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
   const navRef = useRef<HTMLElement>(null)
 
   const rows = useMemo(() => buildRows(bentoItems), [])
@@ -55,30 +57,46 @@ export function PortfolioPage() {
       return
     }
     const card = gridRef.current?.querySelector<HTMLElement>(`[data-cat="${key}"]`)
-    const row = card?.parentElement // the row never carries a transform, the card can (reveal animation)
-    if (!row) return
-    window.scrollTo({ top: row.getBoundingClientRect().top + window.scrollY - REST_TOP, behavior: 'smooth' })
+    const row = card?.parentElement
+    const spacer = spacerRef.current
+    if (!row || !spacer) return
+    // the grid starts right after the spacer; offsets ignore transforms, so this is right even mid-zoom
+    window.scrollTo({ top: spacer.offsetHeight + row.offsetTop - REST_TOP, behavior: 'smooth' })
   }, [])
 
   useLayoutEffect(() => {
-    const root = rootRef.current!
     const spacer = spacerRef.current!
+    const box = boxRef.current!
+    const stage = stageRef.current!
     const hero = heroRef.current!
     const layer = layerRef.current!
     const slot = slotRef.current!
     const grid = gridRef.current!
     const nav = navRef.current!
 
-    // Everything the animation needs, measured from the real DOM (never hard-coded).
-    const m = { vw: 0, vh: 0, L: 0, slotX: 0, slotDocY: 0, slotW: 0, slotH: 0, radius: 28, stageCx: 0, stageCy: 0, stageH: 1 }
-    const proxy = { p: 0 }
-    let mode: 'fly' | 'dock' | null = null
+    /*
+     * THE IDEA — the hero *is* bento #1, just seen from very close up.
+     * The whole grid sits in one wrapper (`stage`). At scroll 0 that wrapper is magnified by S0
+     * so bento #1 exactly covers the viewport (and everything else is off-screen); scrolling
+     * pulls the camera back — a pure zoom about a fixed point — until the scale is 1 and bento
+     * #1 sits in its normal place. Since it is one object, the neighbours travel *with* the hero
+     * and slide in from the right/bottom while it shrinks. No fading, no duplicate card.
+     * While zooming the wrapper is pinned (position: fixed); at the end it drops back into the
+     * normal flow, in exactly the same spot, and the page scrolls natively.
+     */
+    const m = {
+      vw: 0, vh: 0, L: 0,
+      slotLX: 0, slotLY: 0, slotW: 0, slotH: 0, radius: 28,
+      S0: 1, crx: 0, cry: 0, qx: 0, qy: 0,
+      stageCx: 0, stageCy: 0, stageH: 1,
+    }
+    let mode: 'zoom' | 'rest' | null = null
 
     /**
-     * Place the viewport-sized hero composition inside a w × h box. e = 0 → the whole
-     * composition is fitted (fullscreen look); e = 1 → only the 3D stage is shown, its
-     * centre on the box centre and its height filling the box, so the card model sits
-     * dead-centre in the bento with no caption or arrows around it.
+     * Fit the viewport-sized hero composition into a w × h box (the slot, in its own pixels).
+     * e = 0 → the whole composition is fitted, which at S0× magnification is exactly what a
+     * fullscreen hero looks like; e = 1 → only the 3D stage is kept, centred, with its height
+     * filling the box (no caption, no arrows).
      */
     const fitLayer = (w: number, h: number, e: number) => {
       const sFull = Math.min(w / m.vw, h / m.vh)
@@ -92,28 +110,41 @@ export function PortfolioPage() {
     const measure = () => {
       m.vw = document.documentElement.clientWidth
       m.vh = window.innerHeight
-      m.L = Math.round(clamp(m.vh * 1.15, 720, 1400)) // scroll distance of the transition
-
-      // Space above the grid: the hero's "fullscreen" lives here. At scrollY = L the first row
-      // sits exactly REST_TOP from the top of the screen.
+      m.L = Math.round(clamp(m.vh * 0.6, 360, 640)) // scroll distance of the zoom-out
       spacer.style.height = `${m.L + REST_TOP}px`
       layer.style.width = `${m.vw}px`
       layer.style.height = `${m.vh}px`
 
-      // The destination: the real Bento #1 box.
+      // Measure the real, untransformed layout.
+      stage.classList.remove('is-pinned')
+      stage.style.transform = 'none'
+      box.style.height = ''
+      const boxH = stage.offsetHeight
+      box.style.height = `${boxH}px`
+      const wr = stage.getBoundingClientRect()
       const r = slot.getBoundingClientRect()
-      m.slotX = r.left + window.scrollX
-      m.slotDocY = r.top + window.scrollY
+      m.slotLX = r.left - wr.left
+      m.slotLY = r.top - wr.top
       m.slotW = r.width
       m.slotH = r.height
       m.radius = parseFloat(getComputedStyle(slot).borderTopLeftRadius) || 28
 
+      // Zoom geometry. S0: magnification at which bento #1 just covers the viewport.
+      m.S0 = Math.max(1.0001, m.vw / m.slotW, m.vh / m.slotH)
+      m.crx = wr.left + m.slotLX + m.slotW / 2 // where bento #1's centre ends up (screen)
+      m.cry = REST_TOP + m.slotLY + m.slotH / 2
+      const cvx = m.vw / 2 // …and where it starts: the middle of the screen
+      const cvy = m.vh / 2
+      // the one point that stays put during a pure zoom (so the move is a straight pull-back)
+      m.qx = (m.S0 * m.crx - cvx) / (m.S0 - 1)
+      m.qy = (m.S0 * m.cry - cvy) / (m.S0 - 1)
+
       // The 3D stage inside the composition (the part that stays when docked).
-      const stage = layer.querySelector<HTMLElement>('.sc-viewport')
-      if (stage) {
-        m.stageCx = stage.offsetLeft + stage.offsetWidth / 2
-        m.stageCy = stage.offsetTop + stage.offsetHeight / 2
-        m.stageH = Math.max(stage.offsetHeight, 1)
+      const st = layer.querySelector<HTMLElement>('.sc-viewport')
+      if (st) {
+        m.stageCx = st.offsetLeft + st.offsetWidth / 2
+        m.stageCy = st.offsetTop + st.offsetHeight / 2
+        m.stageH = Math.max(st.offsetHeight, 1)
       } else {
         m.stageCx = m.vw / 2
         m.stageCy = m.vh / 2
@@ -123,76 +154,64 @@ export function PortfolioPage() {
       // The nav bar is full-width when stuck, but its content lines up with the grid's edges.
       const gridW = grid.getBoundingClientRect().width
       nav.style.setProperty('--nav-pad', `${Math.max((m.vw - gridW) / 2, 16).toFixed(0)}px`)
+
+      // Cards that are on screen once the zoom-out is done must already be there while it
+      // happens (they ride in with the zoom) — only the ones further down get the scroll reveal.
+      grid.querySelectorAll<HTMLElement>('.pf-card').forEach((c) => {
+        const row = c.parentElement as HTMLElement
+        c.classList.toggle('no-reveal', row.offsetTop + REST_TOP < m.vh)
+      })
       mode = null // force a full restyle on the next apply()
     }
 
-    const dock = () => {
-      if (mode !== 'dock') {
-        mode = 'dock'
-        hero.style.position = 'absolute'
-        hero.style.left = '0px'
-        hero.style.top = '0px'
-        hero.style.width = '100%'
-        hero.style.height = '100%'
-        hero.style.transform = 'none'
-        hero.style.borderRadius = `${m.radius}px`
-        hero.style.boxShadow = 'none'
-        heroZoom.docked = true
-        hero.style.setProperty('--dock', '1')
-        hero.classList.add('is-docked')
-      }
-      fitLayer(m.slotW, m.slotH, 1)
-      heroZoom.value = DOCKED_MODEL_ZOOM
-    }
-
-    const fly = (e: number, y: number) => {
-      mode = 'fly'
-      // Live rect of Bento #1 on screen right now (it is rising with the page as we scroll).
-      const dx = m.slotX
-      const dy = m.slotDocY - y
-      const x = lerp(0, dx, e)
-      const yy = lerp(0, dy, e)
-      const w = lerp(m.vw, m.slotW, e)
-      const h = lerp(m.vh, m.slotH, e)
-      hero.style.position = 'fixed'
-      hero.style.left = '0px'
-      hero.style.top = '0px'
-      hero.style.width = `${w.toFixed(2)}px`
-      hero.style.height = `${h.toFixed(2)}px`
-      hero.style.transform = `translate3d(${x.toFixed(2)}px, ${yy.toFixed(2)}px, 0)`
-      hero.style.borderRadius = `${lerp(0, m.radius, e).toFixed(2)}px`
-      hero.style.boxShadow = 'none'
-      fitLayer(w, h, e)
-      const d = smoothstep(0.2, 0.75, e) // caption + arrows fade out on the way in
-      hero.style.setProperty('--dock', d.toFixed(3))
-      hero.classList.toggle('is-docked', d > 0.6)
-      heroZoom.docked = d > 0.6
-      heroZoom.value = lerp(1, DOCKED_MODEL_ZOOM, e)
-    }
-
     const apply = () => {
-      const p = clamp(proxy.p)
+      const p = clamp(window.scrollY / m.L)
       progressRef.current = p
       nav.style.setProperty('--np', smoothstep(0, 0.7, p).toFixed(4))
-      if (p >= 0.9999) dock()
-      else fly(easeInOutCubic(p), window.scrollY)
+
+      if (p >= 0.9999) {
+        if (mode !== 'rest') {
+          mode = 'rest'
+          stage.classList.remove('is-pinned')
+          stage.style.transform = 'none'
+          hero.style.borderRadius = `${m.radius}px`
+          hero.style.setProperty('--dock', '1')
+          hero.classList.add('is-docked')
+          heroZoom.docked = true
+        }
+        fitLayer(m.slotW, m.slotH, 1)
+        heroZoom.value = DOCKED_MODEL_ZOOM
+      } else {
+        mode = 'zoom'
+        const e = easeInOutSine(p)
+        const s = Math.pow(m.S0, 1 - e) // geometric: the zoom keeps a constant visual speed
+        // bento #1's centre, pulled in along the straight line towards its resting place
+        const cx = m.qx + s * (m.crx - m.qx)
+        const cy = m.qy + s * (m.cry - m.qy)
+        const tx = cx - s * (m.slotLX + m.slotW / 2)
+        const ty = cy - s * (m.slotLY + m.slotH / 2)
+        stage.classList.add('is-pinned')
+        stage.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) scale(${s.toFixed(5)})`
+        // square-cornered when fullscreen, card-rounded when home (kept in screen px, so ÷ s)
+        hero.style.borderRadius = `${(lerp(0, m.radius, e) / s).toFixed(2)}px`
+        fitLayer(m.slotW, m.slotH, e)
+        const d = smoothstep(0.2, 0.75, e) // caption + arrows fade out on the way in
+        hero.style.setProperty('--dock', d.toFixed(3))
+        hero.classList.toggle('is-docked', d > 0.6)
+        heroZoom.docked = d > 0.6
+        heroZoom.value = lerp(1, DOCKED_MODEL_ZOOM, e)
+      }
       syncActive()
     }
 
     measure()
-    const tween = gsap.to(proxy, {
-      p: 1,
-      ease: 'none',
-      onUpdate: apply,
-      scrollTrigger: {
-        trigger: root,
-        start: 'top top',
-        end: () => `+=${m.L}`,
-        scrub: 0.6, // scrubbed to the scrollbar (with a touch of smoothing); reverses by itself
-        invalidateOnRefresh: true,
-      },
+    const st = ScrollTrigger.create({
+      trigger: rootRef.current!,
+      start: 'top top',
+      end: () => `+=${m.L}`,
+      invalidateOnRefresh: true,
+      onUpdate: apply, // exact (no smoothing): scrolling back reverses the move frame by frame
     })
-    tween.progress(clamp(window.scrollY / m.L)) // reloaded mid-page? start in the right place
     apply()
 
     const onRefreshInit = () => measure()
@@ -249,8 +268,7 @@ export function PortfolioPage() {
       heroIO.disconnect()
       catIO.disconnect()
       revealIO.disconnect()
-      tween.scrollTrigger?.kill()
-      tween.kill()
+      st.kill()
       heroZoom.value = 1
       heroZoom.docked = false
     }
@@ -274,24 +292,28 @@ export function PortfolioPage() {
     <div className="pf" ref={rootRef}>
       <Navbar navRef={navRef} active={active} onNavigate={goTo} />
 
-      {/* Scroll runway for the transition: the hero is "fullscreen" over this empty space,
-          the grid rises out of its bottom edge. Its height is set from JS. */}
+      {/* Scroll runway for the zoom-out (height set from JS). */}
       <div className="pf-spacer" ref={spacerRef} aria-hidden="true" />
 
       <main className="pf-main">
-        <BentoGrid
-          rows={rows}
-          gridRef={gridRef}
-          slotRef={slotRef}
-          onOpen={openCard}
-          hero={
-            <div className="pf-hero" ref={heroRef} onPointerDownCapture={onHeroDown} onClick={onHeroClick}>
-              <div className="pf-hero__layer" ref={layerRef}>
-                <ShowcaseScene showNav={false} active={heroLive} />
-              </div>
-            </div>
-          }
-        />
+        {/* The in-flow placeholder keeps the page height while the stage is pinned (fixed) during the zoom. */}
+        <div className="pf-gridbox" ref={boxRef}>
+          <div className="pf-stage" ref={stageRef}>
+            <BentoGrid
+              rows={rows}
+              gridRef={gridRef}
+              slotRef={slotRef}
+              onOpen={openCard}
+              hero={
+                <div className="pf-hero" ref={heroRef} onPointerDownCapture={onHeroDown} onClick={onHeroClick}>
+                  <div className="pf-hero__layer" ref={layerRef}>
+                    <ShowcaseScene showNav={false} active={heroLive} />
+                  </div>
+                </div>
+              }
+            />
+          </div>
+        </div>
         <footer className="pf-footer">
           <span>© 2026</span>
           <span>Built with React Three Fiber</span>

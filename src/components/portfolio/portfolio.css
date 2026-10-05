@@ -20,6 +20,22 @@
 .pf-main {
   position: relative;
 }
+/* In-flow placeholder (height from JS). The stage inside is pinned while the hero zooms out. */
+.pf-gridbox {
+  position: relative;
+}
+.pf-stage {
+  position: relative;
+}
+.pf-stage.is-pinned {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  transform-origin: 0 0;
+  will-change: transform;
+}
 
 /* ---------- Bento grid: never full-bleed, always air on both sides ---------- */
 .pf-bento {
@@ -40,19 +56,15 @@
   min-width: 0;
   border-radius: var(--pf-radius);
 }
-/* No transform / filter / z-index / contain here: it would trap the hero's position:fixed. */
 .pf-slot {
   position: relative;
 }
 
 /* ---------- The hero (lives inside Bento #1's slot) ---------- */
 .pf-hero {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 20;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   overflow: hidden;
   background: #f9fafb;
 }
@@ -107,7 +119,8 @@
     opacity 0.7s ease,
     transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.pf-card.is-in {
+.pf-card.is-in,
+.pf-card.no-reveal {
   opacity: 1;
   transform: none;
 }
@@ -180,7 +193,6 @@
   background: rgba(calc(249 + var(--np) * 6), calc(250 + var(--np) * 5), calc(251 + var(--np) * 4), calc(var(--np) * 0.94));
   -webkit-backdrop-filter: blur(calc(var(--np) * 20px)) saturate(calc(1 + var(--np) * 0.8));
   backdrop-filter: blur(calc(var(--np) * 20px)) saturate(calc(1 + var(--np) * 0.8));
-  border-bottom: 1px solid rgba(21, 21, 21, calc(var(--np) * 0.07));
 }
 .pf-nav__logo {
   color: var(--ink);
