@@ -7,7 +7,13 @@ export interface BentoItem {
   year: string
   /** Text shown under the expanded view. */
   blurb: string
-  kind: 'image' | 'video' | 'experience'
+  kind: 'image' | 'video' | 'experience' | 'globe'
+  /** 'tall' = the slim, tall box: it gets a narrow, portrait slot next to a wide neighbour. */
+  shape?: 'tall'
+  /** Black & white footage (the 'activity loop' look). */
+  mono?: boolean
+  /** Status text laid over the media (top: status + live dot, bottom: period). */
+  overlay?: { status: string; period?: string }
   /** Image URL, or the video file URL when kind === 'video'. */
   src: string
   /** Video only: still frame shown before it loads. */
@@ -65,6 +71,31 @@ export const bentoItems: BentoItem[] = [
     kind: 'video',
     src: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
     poster: 'https://picsum.photos/seed/loop-study/1200/800',
+  },
+  {
+    // The slim, tall box: a looping, black & white montage of what I'm up to (walks, rides, …).
+    // PLACEHOLDER clip — swap `src` for your own montage (portrait works best).
+    id: 'activity-loop',
+    category: 'fun',
+    title: 'Out and about',
+    year: '2026',
+    blurb: 'A loop of small moments — walks, rides, whatever the week held.',
+    kind: 'video',
+    shape: 'tall',
+    mono: true,
+    overlay: { status: 'Online' },
+    src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    poster: 'https://picsum.photos/seed/out-and-about/900/1200?grayscale',
+  },
+  {
+    // Interactive 3D globe: drag to spin, tap to open bigger. Shows region + live local time.
+    id: 'where-i-am',
+    category: 'fun',
+    title: 'Where I’m based',
+    year: '2026',
+    blurb: 'Perbaungan, North Sumatra, Indonesia — WIB (UTC+7).',
+    kind: 'globe',
+    src: '',
   },
   {
     id: 'brutalist-type',

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { BentoItem } from './bentoData'
 import { CATEGORY_LABEL } from './bentoData'
+import { GlobeCanvas } from './globe/GlobeCanvas'
+import { GlobeInfo } from './globe/GlobeInfo'
 
 const DURATION = 560
 const PANEL_ASPECT = 1.59 // the reference panel is ~836 × 527
@@ -112,7 +114,12 @@ export function BentoLightbox({ item, originEl, onClosed }: Props) {
         className={`pf-lb__panel${open ? ' is-open' : ''}`}
         style={{ left: box.left, top: box.top, width: box.width, height: box.height }}
       >
-        {item.kind === 'video' ? (
+        {item.kind === 'globe' ? (
+          <>
+            <GlobeCanvas />
+            <GlobeInfo />
+          </>
+        ) : item.kind === 'video' ? (
           <video src={item.src} poster={item.poster} autoPlay loop muted playsInline controls />
         ) : (
           <img src={item.src} alt={item.title} draggable={false} />

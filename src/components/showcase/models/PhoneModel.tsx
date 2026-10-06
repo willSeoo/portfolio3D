@@ -6,7 +6,7 @@ import { roundedFaceGeometry, roundedSlabGeometry } from './geometry'
 import { useScreenTexture } from './useScreenTexture'
 
 /**
- * An iPhone 17 Pro-style mockup in a dark "deep blue" finish: flat aluminium unibody
+ * An iPhone 17 Pro-style mockup in a Space Black finish (like the black MacBook): flat aluminium unibody
  * frame, thin bezels, Dynamic-Island pill, the wide full-width camera plateau with a
  * three-lens triangle, Action / volume / side / Camera Control buttons — and no logo
  * anywhere. `item.thumbnail` goes on the screen, cropped to fill.
@@ -34,11 +34,11 @@ export function PhoneModel({ item, size }: { item: ModelShowcaseItem; size: numb
 
   const screenTexture = useScreenTexture(item.thumbnail, item.title, item.tone, screenW / screenH)
 
-  const frameMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#2b3548', metalness: 0.88, roughness: 0.34 }), [])
+  const frameMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#38393e', metalness: 0.88, roughness: 0.36 }), [])
   const glassMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#040405', roughness: 0.2, metalness: 0, specularIntensity: 0.35, clearcoat: 0.25, clearcoatRoughness: 0.15 }), [])
-  const backGlassMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#222a3a', roughness: 0.5, metalness: 0.45, clearcoat: 0.25, clearcoatRoughness: 0.55 }), [])
+  const backGlassMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#26272b', roughness: 0.5, metalness: 0.45, clearcoat: 0.25, clearcoatRoughness: 0.55 }), [])
   // the lower back panel: frosted (matte) glass, no sheen — what sits under the camera plateau
-  const matteMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#242c42', roughness: 0.92, metalness: 0.03, specularIntensity: 0.2 }), [])
+  const matteMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#2a2b2f', roughness: 0.93, metalness: 0.03, specularIntensity: 0.2 }), [])
   const screenMat = useMemo(
     () => new THREE.MeshStandardMaterial({ map: screenTexture, emissiveMap: screenTexture, emissive: '#ffffff', emissiveIntensity: 0.75, roughness: 0.35, metalness: 0 }),
     [screenTexture],
@@ -64,9 +64,9 @@ export function PhoneModel({ item, size }: { item: ModelShowcaseItem; size: numb
   const bumpDepth = width * 0.034
   const bumpTopGap = width * 0.012
   const bump = useMemo(() => roundedSlabGeometry(bumpW, bumpH, bumpDepth, width * 0.13, bumpDepth * 0.3), [bumpW, bumpH, bumpDepth, width])
-  const bumpMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#283146', roughness: 0.3, metalness: 0.5, clearcoat: 0.7, clearcoatRoughness: 0.25 }), [])
-  const ringMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#4a5266', metalness: 0.95, roughness: 0.25 }), [])
-  const lensMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#070b16', roughness: 0.05, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.03 }), [])
+  const bumpMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#2b2c31', roughness: 0.3, metalness: 0.5, clearcoat: 0.7, clearcoatRoughness: 0.25 }), [])
+  const ringMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#55565d', metalness: 0.95, roughness: 0.25 }), [])
+  const lensMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#070708', roughness: 0.05, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.03 }), [])
   const flashMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#e9e4d6', roughness: 0.4 }), [])
   const lr = width * 0.108
   // [x, y] in units of `width` from the plateau's centre — two stacked on the left, one beside them

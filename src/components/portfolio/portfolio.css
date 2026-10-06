@@ -396,6 +396,9 @@
   .pf-slot {
     aspect-ratio: 4 / 5;
   }
+  .pf-card--tall {
+    aspect-ratio: 3 / 4 !important;
+  }
   .pf-card {
     aspect-ratio: 4 / 3;
   }
@@ -421,78 +424,89 @@
   }
 }
 
-/* ---------- Experience card (bento #2): clean white list that scrolls inside the card ---------- */
+/* ---------- Experience card (bento #2): clean white list, one scroll area for the whole card ---------- */
 .pf-card--exp {
-  display: flex;
-  flex-direction: column;
+  --exp-head: 3.5rem;
+  display: block;
   /* its content (the long list) must not decide the row's height — the row's aspect ratio does */
   contain: size;
   cursor: default;
   background: #ffffff;
   color: var(--ink);
 }
-.pf-exp__head {
-  flex: none;
-  padding: clamp(0.9rem, 1.5vw, 1.35rem) clamp(1.1rem, 2vw, 1.7rem);
-  font-size: clamp(0.88rem, 1vw, 1rem);
-  font-weight: 500;
-  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
-}
-.pf-exp__body {
-  position: relative;
-  flex: 1 1 0px;
-  min-height: 0;
-}
 .pf-exp__scroll {
   position: absolute;
-  inset: 0 0.4rem 0 0;
+  inset: 0;
   overflow-y: auto;
   overscroll-behavior: auto;
-  padding: 0.5rem 0.9rem 3.5rem clamp(1.1rem, 2vw, 1.7rem);
   outline: none;
 }
-/* the card's own slim scrollbar: soft grey on white, rounded, no arrows */
+/* clear, slim scrollbar the full height of the card: pale track, mid-grey thumb */
 .pf-exp__scroll::-webkit-scrollbar {
-  width: 10px;
+  width: 16px;
 }
 .pf-exp__scroll::-webkit-scrollbar-track {
-  background: transparent;
-  margin: 0.9rem 0 1.1rem;
+  background: #f1f2f5;
+  border: 4px solid transparent;
+  background-clip: padding-box;
+  border-radius: 999px;
+  margin: 0.9rem 0;
 }
 .pf-exp__scroll::-webkit-scrollbar-thumb {
-  background: #d9dce1;
-  border-radius: 999px;
-  border: 3px solid transparent;
+  background: #b4bac4;
+  border: 4px solid transparent;
   background-clip: padding-box;
+  border-radius: 999px;
+  min-height: 3rem;
 }
 .pf-exp__scroll::-webkit-scrollbar-thumb:hover {
-  background: #bfc4cb;
-  border: 3px solid transparent;
+  background: #8c94a1;
+  border: 4px solid transparent;
   background-clip: padding-box;
 }
 @supports not selector(::-webkit-scrollbar) {
   .pf-exp__scroll {
-    scrollbar-width: thin;
-    scrollbar-color: #d9dce1 transparent;
+    scrollbar-width: auto;
+    scrollbar-color: #b4bac4 #f1f2f5;
   }
 }
-/* soft white fades top and bottom (they stop short of the scrollbar so it stays fully visible) */
+.pf-exp__head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  height: var(--exp-head);
+  padding: 0 clamp(1.1rem, 2vw, 1.7rem);
+  background: #ffffff;
+  font-size: clamp(0.95rem, 1.05vw, 1.05rem);
+  font-weight: 600;
+  border-bottom: 1px solid rgba(17, 24, 39, 0.09);
+}
+.pf-exp__list {
+  padding: 0.35rem 0.4rem 3.5rem clamp(1.1rem, 2vw, 1.7rem);
+}
+/* matching soft fades (same height, same strength) — each shows only when there is more that way */
 .pf-exp__fade {
   position: absolute;
   left: 0;
-  right: 1.1rem;
+  right: 16px; /* stop short of the scrollbar so it is never washed out */
+  height: 3rem;
   pointer-events: none;
   z-index: 1;
+  transition: opacity 0.2s ease;
 }
 .pf-exp__fade--top {
-  top: 0;
-  height: 0.9rem;
-  background: linear-gradient(#fff, rgba(255, 255, 255, 0));
+  top: var(--exp-head);
+  background: linear-gradient(#fff 10%, rgba(255, 255, 255, 0));
 }
 .pf-exp__fade--bottom {
   bottom: 0;
-  height: 4rem;
-  background: linear-gradient(rgba(255, 255, 255, 0), #fff 85%);
+  background: linear-gradient(rgba(255, 255, 255, 0), #fff 90%);
+}
+.pf-card--exp[data-at-top='true'] .pf-exp__fade--top,
+.pf-card--exp[data-at-end='true'] .pf-exp__fade--bottom {
+  opacity: 0;
 }
 /* while the grid is still flying in, wheel/touch belong to the page, not to this list */
 .pf-stage.is-pinned .pf-exp__scroll {
@@ -500,21 +514,21 @@
 }
 .pf-exp__row {
   display: grid;
-  grid-template-columns: minmax(6.2rem, 31%) 1fr;
+  grid-template-columns: minmax(6.6rem, 31%) 1fr;
   gap: 1rem;
-  padding: clamp(0.85rem, 1.4vw, 1.25rem) 0;
-  border-bottom: 1px solid rgba(17, 24, 39, 0.06);
+  padding: clamp(0.9rem, 1.4vw, 1.25rem) 0;
+  border-bottom: 1px solid rgba(17, 24, 39, 0.07);
 }
 .pf-exp__row:last-child {
   border-bottom: 0;
 }
 .pf-exp__when {
   display: flex;
-  align-self: start; /* just one line tall, so the dash sits between the years */
+  align-self: start;
   align-items: center;
   gap: 0.55rem;
-  font-size: clamp(0.82rem, 0.95vw, 0.98rem);
-  color: #a3a8af;
+  font-size: clamp(0.9rem, 1vw, 1rem);
+  color: #868c95;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -527,19 +541,135 @@
 }
 .pf-exp__what h3 {
   margin: 0;
-  font-size: clamp(0.92rem, 1.08vw, 1.08rem);
-  font-weight: 500;
-  color: var(--ink);
+  font-size: clamp(1rem, 1.15vw, 1.12rem);
+  font-weight: 600;
+  color: #111317;
 }
 .pf-exp__what p {
   margin: 0.3rem 0 0;
-  font-size: clamp(0.84rem, 1vw, 1rem);
+  font-size: clamp(0.92rem, 1.03vw, 1.02rem);
   line-height: 1.5;
-  color: #7f858c;
+  color: #565c65;
 }
 @media (max-width: 720px) {
   .pf-card--exp {
     aspect-ratio: auto;
     height: 26rem;
   }
+}
+
+/* ---------- Status overlay on the slim, tall video box (black & white loop) ---------- */
+.pf-card--mono .pf-card__media video,
+.pf-card--mono .pf-card__media img {
+  filter: grayscale(1) contrast(1.06);
+}
+.pf-card__shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0) 68%, rgba(0, 0, 0, 0.4));
+}
+.pf-ov {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(1rem, 1.6vw, 1.4rem);
+  color: #fff;
+  font-size: clamp(0.95rem, 1.1vw, 1.1rem);
+  font-weight: 500;
+  pointer-events: none;
+}
+.pf-ov--top {
+  top: 0;
+  height: 3.2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+  margin: 0 clamp(1rem, 1.6vw, 1.4rem);
+  padding: 0;
+  left: 0;
+  right: 0;
+}
+.pf-ov--bottom {
+  bottom: 1.1rem;
+}
+.pf-ov__live {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  animation: pf-live 2.2s ease-out infinite;
+}
+@keyframes pf-live {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
+  70%, 100% { box-shadow: 0 0 0 0.7rem rgba(34, 197, 94, 0); }
+}
+
+/* ---------- Globe card: drag to spin (system grab cursor), tap to open ---------- */
+.pf-card--globe {
+  background: #ffffff;
+  color: var(--ink);
+  cursor: grab;
+}
+.pf-globe {
+  position: absolute;
+  inset: 0;
+  touch-action: pan-y;
+}
+.pf-globe canvas {
+  touch-action: pan-y;
+}
+.pf-globe__info {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1.1rem, 2vw, 1.8rem);
+  pointer-events: none;
+  text-align: left;
+}
+.pf-globe__where {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: clamp(0.88rem, 1vw, 1rem);
+  color: #6b7079;
+}
+.pf-globe__where strong {
+  font-size: clamp(1.25rem, 1.9vw, 1.7rem);
+  font-weight: 600;
+  color: #111317;
+  letter-spacing: -0.01em;
+}
+.pf-globe__eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9aa0a8;
+}
+.pf-globe__time {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.pf-globe__time time {
+  font-size: clamp(1.9rem, 3.2vw, 2.9rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: #111317;
+  line-height: 1.05;
+}
+.pf-globe__time span {
+  font-size: clamp(0.8rem, 0.9vw, 0.92rem);
+  color: #868c95;
+}
+.pf-lb {
+  font-family: system-ui, sans-serif; /* the lightbox is portalled to <body>, outside .pf */
+}
+.pf-lb__panel .pf-globe {
+  background: #ffffff;
 }

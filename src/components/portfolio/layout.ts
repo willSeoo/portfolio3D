@@ -54,6 +54,20 @@ export function buildRows(items: BentoItem[], seed = 7): BentoRow[] {
     const remaining = cells.length - i
     const rowIndex = rows.length
 
+    // the slim, tall box takes a narrow portrait slot beside a wide neighbour
+    if (rowIndex >= 2 && remaining >= 2 && cells[i]?.shape === 'tall') {
+      rows.push({
+        aspect: 2.2,
+        cells: [
+          { item: cells[i], weight: 1 },
+          { item: cells[i + 1], weight: 2.1 },
+        ],
+      })
+      i += 2
+      lastPair = -1
+      continue
+    }
+
     let pair: boolean
     if (rowIndex === 0) pair = remaining >= 2
     else if (rowIndex === 1) pair = false
