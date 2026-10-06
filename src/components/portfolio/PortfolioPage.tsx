@@ -19,7 +19,7 @@ gsap.registerPlugin(ScrollTrigger)
  * Where (px from the top of the screen) bento #1 rests once the transition is complete —
  * just under the compact navbar.
  */
-const REST_TOP = 84
+const REST_TOP = 108
 /** Model scale (relative to the fullscreen hero) once it sits in its card; ModelStage caps it per model so nothing gets cut off. */
 const DOCKED_MODEL_ZOOM = 1.05
 /** Where the grid starts (fraction of the viewport height, from the top). Closer to the top → less downward drift. */

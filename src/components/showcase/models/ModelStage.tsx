@@ -34,8 +34,15 @@ interface Props {
 
 export function ModelStage({ item, onOpenPopup }: Props) {
   const { viewport } = useThree()
-  useThree((st) => st.size) // re-render on window resize so the boost below stays current
+  const size_ = useThree((st) => st.size) // also re-renders on window resize, keeping the boost current
   const fraction = Math.min(HEIGHT_FRACTION[item.model] * laptopBoost(), 0.86)
+
+  // The canvas is taller than the stage (see ShowcaseScene): size and centre the model as if it
+  // still only had the stage — the space the nav (6.5rem) and caption (9rem) reserve is excluded.
+  const rem = typeof window === 'undefined' ? 16 : parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+  const stagePx = Math.max(size_.height - 15.5 * rem, size_.height * 0.4)
+  const worldPerPx = viewport.height / size_.height
+  const lift = 1.25 * rem * worldPerPx // stage centre sits 1.25rem above the canvas centre
   const zoomRef = useRef<THREE.Group>(null)
   const groupRef = useRef<THREE.Group>(null)
   const { onPointerDown, dragging } = useGrabRotate(groupRef, onOpenPopup)
@@ -43,9 +50,10 @@ export function ModelStage({ item, onOpenPopup }: Props) {
   // heroZoom is driven by the scroll transition (1 = fullscreen hero, <1 when docked in its card)
   // (capped so a tall model like the phone can't outgrow the canvas and get its ends cut off)
   useFrame(() => zoomRef.current?.scale.setScalar(Math.min(heroZoom.value, 0.88 / fraction)))
-  const size = viewport.height * fraction
+  const size = stagePx * worldPerPx * fraction
 
   return (
+    <group position={[0, lift, 0]}>
     <group ref={zoomRef}>
     <group
       ref={groupRef}
@@ -69,6 +77,7 @@ export function ModelStage({ item, onOpenPopup }: Props) {
       {item.model === 'card' && <CardModel item={item} size={size} />}
       {item.model === 'phone' && <PhoneModel item={item} size={size} />}
       {item.model === 'oldpc' && <OldPCModel item={item} size={size} />}
+    </group>
     </group>
     </group>
   )

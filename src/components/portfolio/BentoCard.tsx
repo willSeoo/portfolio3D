@@ -12,20 +12,24 @@ export function BentoCard({ item, weight, onOpen }: Props) {
     return (
       <section className="pf-card pf-card--exp" style={{ flexGrow: weight }} data-cat={item.category} data-reveal>
         <header className="pf-exp__head">{item.heading ?? item.title}</header>
-        <div className="pf-exp__scroll" tabIndex={0} role="region" aria-label={`${item.heading ?? item.title}, scrollable`}>
-          {item.entries?.map((en) => (
-            <article className="pf-exp__row" key={`${en.from}-${en.title}`}>
-              <div className="pf-exp__when">
-                <span>{en.from}</span>
-                <i aria-hidden="true" />
-                <span>{en.to}</span>
-              </div>
-              <div className="pf-exp__what">
-                <h3>{en.title}</h3>
-                <p>{en.text}</p>
-              </div>
-            </article>
-          ))}
+        <div className="pf-exp__body">
+          <div className="pf-exp__scroll" tabIndex={0} role="region" aria-label={`${item.heading ?? item.title}, scrollable`}>
+            {item.entries?.map((en) => (
+              <article className="pf-exp__row" key={`${en.from}-${en.title}`}>
+                <div className="pf-exp__when">
+                  <span>{en.from}</span>
+                  <i aria-hidden="true" />
+                  <span>{en.to}</span>
+                </div>
+                <div className="pf-exp__what">
+                  <h3>{en.title}</h3>
+                  <p>{en.text}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="pf-exp__fade pf-exp__fade--top" aria-hidden="true" />
+          <div className="pf-exp__fade pf-exp__fade--bottom" aria-hidden="true" />
         </div>
       </section>
     )

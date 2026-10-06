@@ -93,6 +93,10 @@ export function ShowcaseScene({ showNav = true, active = true }: SceneProps) {
       <div className="sc-viewport">
         <div className="sc-stage" style={style}>
           <Canvas
+            // The canvas reaches past the stage up to the top/bottom of the screen (behind the nav and
+            // the caption), so a rotated model is never sliced off by a hard edge. ModelStage keeps the
+            // model the same size and centred on the stage.
+            style={{ position: 'absolute', left: 0, right: 0, top: '-6.5rem', bottom: '-9rem', height: 'auto' }}
             dpr={[1, 1.5]}
             // measure the untransformed layout size: the portfolio page scales this whole scene with a
             // CSS transform, and getBoundingClientRect (the default) would report the shrunken size
