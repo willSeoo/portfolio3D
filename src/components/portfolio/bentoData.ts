@@ -93,7 +93,7 @@ export const bentoItems: BentoItem[] = [
     category: 'fun',
     title: 'Where I’m based',
     year: '2026',
-    blurb: 'Perbaungan, North Sumatra, Indonesia — WIB (UTC+7).',
+    blurb: 'Medan, North Sumatra, Indonesia — WIB (UTC+7).',
     kind: 'globe',
     src: '',
   },

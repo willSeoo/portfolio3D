@@ -4,8 +4,8 @@ import * as THREE from 'three'
 import { setModelCursor } from '../../cursor/cursorBus'
 import { GLOBE_N, INDONESIA_LATLON, LAND_DELTAS } from './globeData'
 
-/** Where I am: Perbaungan, North Sumatra, Indonesia. */
-export const HOME_PLACE = { name: 'Perbaungan', region: 'North Sumatra, Indonesia', lat: 3.57, lon: 98.97, timeZone: 'Asia/Jakarta', tzLabel: 'WIB · UTC+7' }
+/** Where I am: Medan, North Sumatra, Indonesia. */
+export const HOME_PLACE = { name: 'Medan', region: 'North Sumatra, Indonesia', lat: 3.59, lon: 98.67, timeZone: 'Asia/Jakarta', tzLabel: 'WIB · UTC+7' }
 /** The orientation the globe rests in (and eases back to when left alone): Indonesia in the middle. */
 const VIEW = { lat: -1.5, lon: 108 }
 
@@ -192,7 +192,7 @@ function Scene({ onTap }: SceneProps) {
             <sphereGeometry args={[1, 64, 48]} />
             <meshStandardMaterial color="#f3f5f8" roughness={1} />
           </mesh>
-          <Dots points={land} radius={0.0112} color="#c7ccd5" />
+          <Dots points={land} radius={0.0098} color="#a9b0bc" />
           <Dots points={indonesia} radius={0.0088} color="#15171c" />
           <Marker />
         </group>
