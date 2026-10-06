@@ -155,6 +155,7 @@
   border-radius: inherit;
   border: 1px solid rgba(17, 24, 39, 0.08);
   pointer-events: none;
+  z-index: 3; /* above the experience card's edge fades, so its bottom edge keeps its line */
 }
 /* hairline on high-density screens */
 @media (min-resolution: 2dppx) {
