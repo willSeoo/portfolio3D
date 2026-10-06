@@ -13,7 +13,7 @@ import { useGrabRotate } from './useGrabRotate'
 // height) since a phone reads very differently from a boxy CRT at the same size.
 const HEIGHT_FRACTION: Record<ModelShowcaseItem['model'], number> = {
   card: 0.53,
-  phone: 0.75,
+  phone: 0.78,
   oldpc: 0.57,
 }
 
