@@ -190,9 +190,9 @@ function Scene({ onTap }: SceneProps) {
         <group ref={group}>
           <mesh>
             <sphereGeometry args={[1, 64, 48]} />
-            <meshStandardMaterial color="#f3f5f8" roughness={1} />
+            <meshStandardMaterial color="#f6f8fb" roughness={1} />
           </mesh>
-          <Dots points={land} radius={0.0098} color="#a9b0bc" />
+          <Dots points={land} radius={0.0092} color="#8993a5" />
           <Dots points={indonesia} radius={0.0088} color="#15171c" />
           <Marker />
         </group>

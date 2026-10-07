@@ -1,4 +1,4 @@
-export type ModelType = 'card' | 'phone' | 'oldpc'
+export type ModelType = 'card' | 'phone' | 'oldpc' | 'swatch'
 
 interface ShowcaseItemBase {
   id: string

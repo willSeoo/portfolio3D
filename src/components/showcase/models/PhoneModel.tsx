@@ -59,26 +59,26 @@ export function PhoneModel({ item, size }: { item: ModelShowcaseItem; size: numb
   const buttonGeo = useMemo(() => new RoundedBoxGeometry(0.014, 1, depth * 0.34, 3, 0.005), [depth])
 
   // back camera plateau: a raised, rounded block across the top of the back
-  const bumpW = width * 0.975
+  const bumpW = width * 0.88
   const bumpH = width * 0.5
   const bumpDepth = width * 0.034
-  const bumpTopGap = width * 0.012
-  const bump = useMemo(() => roundedSlabGeometry(bumpW, bumpH, bumpDepth, width * 0.13, bumpDepth * 0.3), [bumpW, bumpH, bumpDepth, width])
+  const bumpTopGap = width * 0.05
+  const bump = useMemo(() => roundedSlabGeometry(bumpW, bumpH, bumpDepth, width * 0.12, bumpDepth * 0.3), [bumpW, bumpH, bumpDepth, width])
   const bumpMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#2b2c31', roughness: 0.3, metalness: 0.5, clearcoat: 0.7, clearcoatRoughness: 0.25 }), [])
   const ringMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#55565d', metalness: 0.95, roughness: 0.25 }), [])
   const lensMat = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#070708', roughness: 0.05, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.03 }), [])
   const flashMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#e9e4d6', roughness: 0.4 }), [])
-  const lr = width * 0.108
+  const lr = width * 0.088
   // [x, y] in units of `width` from the plateau's centre — two stacked on the left, one beside them
   const lenses: [number, number][] = [
-    [-0.28, 0.115],
-    [-0.28, -0.115],
-    [-0.05, 0],
+    [-0.32, 0.124],
+    [-0.087, 0],
+    [-0.32, -0.126],
   ]
 
   // matte panel under the plateau (no logo on it)
   const plateauBottom = height / 2 - bumpTopGap - bumpH
-  const panelTop = plateauBottom - width * 0.06
+  const panelTop = plateauBottom - width * 0.07
   const panelBottom = -height / 2 + width * 0.05
   const panelW = width * 0.89
   const panelH = panelTop - panelBottom
@@ -111,19 +111,19 @@ export function PhoneModel({ item, size }: { item: ModelShowcaseItem; size: numb
                 <cylinderGeometry args={[lr, lr, bumpDepth * 0.36, 48]} />
               </mesh>
               <mesh material={lensMat} position={[0, 0, bumpDepth * 0.2]} rotation={[Math.PI / 2, 0, 0]}>
-                <cylinderGeometry args={[lr * 0.74, lr * 0.74, bumpDepth * 0.4, 48]} />
+                <cylinderGeometry args={[lr * 0.78, lr * 0.78, bumpDepth * 0.4, 48]} />
               </mesh>
             </group>
           ))}
           {/* flash, microphone, LiDAR */}
-          <mesh material={flashMat} position={[0.27 * width, 0.13 * width, bumpDepth + 0.001]} rotation={[Math.PI / 2, 0, 0]}>
+          <mesh material={flashMat} position={[0.32 * width, 0.13 * width, bumpDepth + 0.001]} rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry args={[width * 0.036, width * 0.036, 0.004, 28]} />
           </mesh>
-          <mesh material={blackMat} position={[0.27 * width, -0.1 * width, bumpDepth + 0.001]} rotation={[Math.PI / 2, 0, 0]}>
+          <mesh material={blackMat} position={[0.326 * width, -0.126 * width, bumpDepth + 0.001]} rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry args={[width * 0.036, width * 0.036, 0.004, 28]} />
           </mesh>
-          <mesh material={blackMat} position={[0.15 * width, 0.15 * width, bumpDepth + 0.001]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[width * 0.012, width * 0.012, 0.004, 16]} />
+          <mesh material={blackMat} position={[0.326 * width, 0 * width, bumpDepth + 0.001]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[width * 0.008, width * 0.008, 0.004, 16]} />
           </mesh>
         </group>
       </group>

@@ -11,7 +11,7 @@ export const showcaseItems: ShowcaseItem[] = [
     model: 'card',
     id: 'about',
     title: 'About Me',
-    category: 'Identity',
+    category: 'Identity', // each model is a category: card = About
     year: '2026',
     href: '/about',
     // thumbnail: '/assets/me-front.jpg',   // your photo for the front of the ID
@@ -21,8 +21,8 @@ export const showcaseItems: ShowcaseItem[] = [
     kind: 'model',
     model: 'phone',
     id: 'comick',
-    title: 'ComicK Redesign',
-    category: 'UI/UX',
+    title: 'UI/UX Design',
+    category: 'ComicK Redesign', // phone = UI/UX Design
     year: '2026',
     href: '/projects/comick',
     thumbnail: 'https://picsum.photos/seed/comick-app/600/1300',
@@ -32,20 +32,20 @@ export const showcaseItems: ShowcaseItem[] = [
     kind: 'model',
     model: 'oldpc',
     id: 'reel-weird',
-    title: 'Reel Weird',
-    category: 'Game',
+    title: 'Software Engineering',
+    category: 'Reel Weird', // old PC = Software Engineering
     year: '2026',
     href: '/projects/reel-weird',
     thumbnail: 'https://picsum.photos/seed/reel-weird-game/900/700',
     tone: '#ece0b9',
   },
   {
-    kind: 'photo',
-    id: 'snapshot',
-    title: 'Snapshot',
-    category: 'Personal',
+    kind: 'model',
+    model: 'swatch',
+    id: 'graphic',
+    title: 'Graphic Design',
+    category: 'Brand & Poster', // colour-swatch fan = Graphic Design
     year: '2026',
-    href: '/photos',
-    src: 'https://picsum.photos/seed/willi-snapshot/1200/900',
+    href: '/projects/graphic',
   },
 ]

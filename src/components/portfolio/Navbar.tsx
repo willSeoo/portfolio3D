@@ -5,9 +5,10 @@ export type NavKey = 'home' | BentoCategory
 
 const LINKS: Array<{ key: NavKey; label: string }> = [
   { key: 'home', label: 'Home' },
-  { key: 'work', label: 'Work' },
-  { key: 'fun', label: 'Fun' },
-  { key: 'philosophy', label: 'Philosophy' },
+  { key: 'about', label: 'About' },
+  { key: 'uiux', label: 'UI/UX' },
+  { key: 'engineering', label: 'Engineering' },
+  { key: 'graphic', label: 'Graphic' },
 ]
 
 interface Props {

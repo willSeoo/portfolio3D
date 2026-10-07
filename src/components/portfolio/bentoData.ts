@@ -1,4 +1,5 @@
-export type BentoCategory = 'work' | 'fun' | 'philosophy'
+/** One per 3D model in the hero: card → about, phone → uiux, old PC → engineering, swatch fan → graphic. */
+export type BentoCategory = 'about' | 'uiux' | 'engineering' | 'graphic'
 
 export interface BentoItem {
   id: string
@@ -33,9 +34,10 @@ export interface ExperienceEntry {
 }
 
 export const CATEGORY_LABEL: Record<BentoCategory, string> = {
-  work: 'Work',
-  fun: 'Fun',
-  philosophy: 'Philosophy',
+  about: 'About',
+  uiux: 'UI/UX Design',
+  engineering: 'Software Engineering',
+  graphic: 'Graphic Design',
 }
 
 // Bento #1 is always the 3D hero (the carousel) — these are bento #2 onwards.
@@ -46,7 +48,7 @@ export const CATEGORY_LABEL: Record<BentoCategory, string> = {
 export const bentoItems: BentoItem[] = [
   {
     id: 'experience',
-    category: 'work',
+    category: 'about',
     title: 'Experience',
     year: '',
     blurb: '',
@@ -64,7 +66,7 @@ export const bentoItems: BentoItem[] = [
   },
   {
     id: 'flower-loop',
-    category: 'fun',
+    category: 'graphic',
     title: 'Loop study',
     year: '2025',
     blurb: 'A tiny motion experiment — a seamless loop that is more about timing than about the subject.',
@@ -76,7 +78,7 @@ export const bentoItems: BentoItem[] = [
     // The slim, tall box: a looping, black & white montage of what I'm up to (walks, rides, …).
     // PLACEHOLDER clip — swap `src` for your own montage (portrait works best).
     id: 'activity-loop',
-    category: 'fun',
+    category: 'about',
     title: 'Out and about',
     year: '2026',
     blurb: 'A loop of small moments — walks, rides, whatever the week held.',
@@ -90,7 +92,7 @@ export const bentoItems: BentoItem[] = [
   {
     // Interactive 3D globe: drag to spin, tap to open bigger. Shows region + live local time.
     id: 'where-i-am',
-    category: 'fun',
+    category: 'about',
     title: 'Where I’m based',
     year: '2026',
     blurb: 'Medan, North Sumatra, Indonesia — WIB (UTC+7).',
@@ -99,7 +101,7 @@ export const bentoItems: BentoItem[] = [
   },
   {
     id: 'brutalist-type',
-    category: 'philosophy',
+    category: 'graphic',
     title: 'Make it slowly',
     year: '2026',
     blurb:
@@ -109,7 +111,7 @@ export const bentoItems: BentoItem[] = [
   },
   {
     id: 'comick',
-    category: 'work',
+    category: 'uiux',
     title: 'ComicK redesign',
     year: '2026',
     blurb: 'A calmer reading experience for a manga tracker: fewer chrome, bigger covers, one-handed navigation.',
@@ -119,7 +121,7 @@ export const bentoItems: BentoItem[] = [
   },
   {
     id: 'reel-weird',
-    category: 'fun',
+    category: 'engineering',
     title: 'Reel Weird',
     year: '2026',
     blurb: 'A small fishing game that is a little too strange to be relaxing. Built for a game jam, kept for the vibes.',
@@ -129,7 +131,7 @@ export const bentoItems: BentoItem[] = [
   },
   {
     id: 'less-but-better',
-    category: 'philosophy',
+    category: 'uiux',
     title: 'Less, but better',
     year: '2025',
     blurb: 'What I cut from every project before shipping it, and what that says about what I think the project is for.',
@@ -138,7 +140,7 @@ export const bentoItems: BentoItem[] = [
   },
   {
     id: 'snapshots',
-    category: 'fun',
+    category: 'graphic',
     title: 'Snapshots',
     year: '2026',
     blurb: 'Photos that did not belong anywhere else.',
@@ -148,7 +150,7 @@ export const bentoItems: BentoItem[] = [
   },
   {
     id: 'ledger',
-    category: 'work',
+    category: 'uiux',
     title: 'Ledger — finance agent UI',
     year: '2026',
     blurb:
