@@ -152,6 +152,16 @@ export function PortfolioPage() {
         const row = c.parentElement as HTMLElement
         c.classList.toggle('no-reveal', row.offsetTop + REST_TOP < m.vh)
       })
+      // Let the last section scroll all the way up to the top of the screen: pad the footer if the
+      // page would otherwise end before that.
+      const footer = rootRef.current?.querySelector<HTMLElement>('.pf-footer')
+      const lastRow = grid.querySelector<HTMLElement>('.pf-bento__row:last-child')
+      if (footer && lastRow) {
+        footer.style.minHeight = ''
+        const needed = spacer.offsetHeight + lastRow.offsetTop - REST_TOP + m.vh // document height required
+        const have = document.documentElement.scrollHeight
+        if (have < needed) footer.style.minHeight = `${footer.offsetHeight + (needed - have)}px`
+      }
       mode = null // force a full restyle on the next apply()
     }
 

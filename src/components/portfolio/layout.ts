@@ -12,87 +12,60 @@ export interface BentoRow {
   cells: BentoCell[]
 }
 
-// Small deterministic PRNG so the "random" layout is the same on every load/refresh
-// (change SEED for a different arrangement).
-function mulberry32(seed: number) {
-  let a = seed >>> 0
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0
-    let t = a
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-
-// [left, right] width weights — one box is a little wider than its neighbour.
-const PAIRS: Array<[number, number]> = [
-  [1.45, 1],
-  [1, 1.45],
-  [1.25, 1],
-  [1, 1.25],
-  [1.7, 1],
-  [1, 1.7],
-]
-const PAIR_ASPECTS = [2.1, 2.35, 2.6, 2.9]
-/** Every row is this fraction of its original height (so 0.74 = 26% shorter). */
-const HEIGHT_FACTOR = 0.74
-
 /**
- * Rows of 1 or 2 cells (never more than 2). The first row is always [hero, next] with the
- * hero the wider one, and the second row is a full-width box — that's the original design;
- * everything after that is shuffled with the seed.
+ * The page, in order, row by row. Each cell is [id, width weight]; `'hero'` is bento #1 (the 3D hero).
+ * Rows hold 1 or 2 boxes, never more. Bento numbers count left → right, top → bottom:
+ *
+ *   1  hero       2  experience                     ← About (2–4)
+ *   3  loop       4  globe
+ *   5  motion (full width)                          ← Motion (5–7)
+ *   6  motion     7  motion
+ *   8  ui/ux      9  ui/ux                          ← UI/UX (8–9)
+ *   10 graphic    11 graphic                        ← Graphic (10–11)
+ *   12 software   13 software                       ← Engineering (12–13)
+ *
+ * Aspect = row width / row height (smaller = taller). Weights make one box a little wider than
+ * its neighbour. Items that aren't listed here are appended afterwards, two per row.
  */
-export function buildRows(items: BentoItem[], seed = 7): BentoRow[] {
-  const rng = mulberry32(seed)
-  const cells: Array<BentoItem | null> = [null, ...items]
+const LAYOUT: Array<{ aspect: number; cells: Array<[string, number]> }> = [
+  { aspect: 2.97, cells: [['hero', 1], ['experience', 1]] },
+  { aspect: 2.2, cells: [['activity-loop', 1], ['where-i-am', 2.1]] },
+  { aspect: 1.9, cells: [['motion-1', 1]] },
+  { aspect: 2.9, cells: [['motion-2', 1.5], ['motion-3', 1]] },
+  { aspect: 2.9, cells: [['comick', 1], ['ledger', 1.5]] },
+  { aspect: 2.9, cells: [['brutalist-type', 1.5], ['less-but-better', 1]] },
+  { aspect: 2.9, cells: [['reel-weird', 1], ['terminal-tool', 1.5]] },
+]
+
+export function buildRows(items: BentoItem[]): BentoRow[] {
+  const byId = new Map(items.map((i) => [i.id, i]))
+  const used = new Set<string>()
   const rows: BentoRow[] = []
-  let i = 0
-  let lastPair = -1
 
-  while (i < cells.length) {
-    const remaining = cells.length - i
-    const rowIndex = rows.length
-
-    // the slim, tall box takes a narrow portrait slot beside a wide neighbour
-    if (rowIndex >= 2 && remaining >= 2 && cells[i]?.shape === 'tall') {
-      rows.push({
-        aspect: 2.2,
-        cells: [
-          { item: cells[i], weight: 1 },
-          { item: cells[i + 1], weight: 2.1 },
-        ],
-      })
-      i += 2
-      lastPair = -1
-      continue
+  for (const spec of LAYOUT) {
+    const cells: BentoCell[] = []
+    for (const [id, weight] of spec.cells) {
+      if (id === 'hero') cells.push({ item: null, weight })
+      else {
+        const item = byId.get(id)
+        if (item) {
+          cells.push({ item, weight })
+          used.add(id)
+        }
+      }
     }
+    if (cells.length) rows.push({ aspect: spec.aspect, cells })
+  }
 
-    let pair: boolean
-    if (rowIndex === 0) pair = remaining >= 2
-    else if (rowIndex === 1) pair = false
-    else pair = remaining >= 2 && rng() > 0.25
-
-    if (pair) {
-      let pick = Math.floor(rng() * PAIRS.length)
-      if (pick === lastPair) pick = (pick + 1) % PAIRS.length
-      lastPair = pick
-      const [wl, wr] = rowIndex === 0 ? [1, 1] : PAIRS[pick]
-      const aspect = (rowIndex === 0 ? 2.2 : PAIR_ASPECTS[Math.floor(rng() * PAIR_ASPECTS.length)]) / HEIGHT_FACTOR
-      rows.push({
-        aspect,
-        cells: [
-          { item: cells[i], weight: wl },
-          { item: cells[i + 1], weight: wr },
-        ],
-      })
-      i += 2
-    } else {
-      const wide = (2.9 + rng() * 0.6) / HEIGHT_FACTOR
-      // the full-width box right under the hero row is the tall one (it holds a video)
-      rows.push({ aspect: rowIndex === 1 ? 1.8 : wide, cells: [{ item: cells[i], weight: 1 }] })
-      i += 1
-    }
+  // anything new that isn't placed above: two per row, alternating which one is wider
+  const rest = items.filter((i) => !used.has(i.id))
+  for (let i = 0, r = 0; i < rest.length; i += 2, r++) {
+    const pair = rest.slice(i, i + 2)
+    const flip = r % 2 === 0
+    rows.push({
+      aspect: pair.length === 2 ? 2.9 : 2.6,
+      cells: pair.map((item, k) => ({ item, weight: pair.length === 2 ? (k === 0) === flip ? 1.4 : 1 : 1 })),
+    })
   }
   return rows
 }
