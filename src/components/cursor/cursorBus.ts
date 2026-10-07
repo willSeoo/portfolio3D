@@ -7,12 +7,15 @@ export const MODEL_CURSOR_EVENT = 'model-cursor'
 
 let clearTimer = 0
 
-export function setModelCursor(state: 'grab' | 'grabbing' | null) {
+/** `variant: 'dark'` swaps the system hand for a dark one (used by the globe, which sits on white). */
+export function setModelCursor(state: 'grab' | 'grabbing' | null, variant?: 'dark') {
   const root = document.documentElement
   window.clearTimeout(clearTimer)
   const apply = () => {
     if (state) root.dataset.model = state
     else delete root.dataset.model
+    if (state && variant) root.dataset.modelStyle = variant
+    else delete root.dataset.modelStyle
     window.dispatchEvent(new Event(MODEL_CURSOR_EVENT))
   }
   // moving between the model's child meshes fires out→over back to back: don't flicker on that

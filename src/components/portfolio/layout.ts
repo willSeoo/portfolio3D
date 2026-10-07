@@ -29,7 +29,7 @@ export interface BentoRow {
  */
 const LAYOUT: Array<{ aspect: number; cells: Array<[string, number]> }> = [
   { aspect: 2.97, cells: [['hero', 1], ['experience', 1]] },
-  { aspect: 2.2, cells: [['activity-loop', 1], ['where-i-am', 2.1]] },
+  { aspect: 2.45, cells: [['activity-loop', 1], ['where-i-am', 2.1]] },
   { aspect: 1.9, cells: [['motion-1', 1]] },
   { aspect: 2.9, cells: [['motion-2', 1.5], ['motion-3', 1]] },
   { aspect: 2.9, cells: [['comick', 1], ['ledger', 1.5]] },

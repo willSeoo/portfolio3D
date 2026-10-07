@@ -1,16 +1,33 @@
 import type { Ref } from 'react'
 import type { BentoCategory } from './bentoData'
 
-export type NavKey = 'home' | BentoCategory
+export type NavKey = 'home' | 'work' | 'fun' | 'philosophy'
 
 const LINKS: Array<{ key: NavKey; label: string }> = [
   { key: 'home', label: 'Home' },
-  { key: 'about', label: 'About' },
-  { key: 'motion', label: 'Motion' },
-  { key: 'uiux', label: 'UI/UX' },
-  { key: 'graphic', label: 'Graphic' },
-  { key: 'engineering', label: 'Engineering' },
+  { key: 'work', label: 'Work' },
+  { key: 'fun', label: 'Fun' },
+  { key: 'philosophy', label: 'Philosophy' },
 ]
+
+/**
+ * Which bento categories each link covers. Every showcase (motion, UI/UX, graphic, engineering)
+ * lives under Work; the About boxes sit right under the hero, so they count as Home.
+ * Fun and Philosophy have no boxes yet — give an item that category list here and they light up.
+ */
+export const NAV_CATEGORIES: Record<Exclude<NavKey, 'home'>, BentoCategory[]> = {
+  work: ['motion', 'uiux', 'graphic', 'engineering'],
+  fun: [],
+  philosophy: [],
+}
+
+/** The nav link a bento category belongs to (for the active highlight). */
+export function navKeyFor(cat: string): NavKey {
+  for (const key of Object.keys(NAV_CATEGORIES) as Array<Exclude<NavKey, 'home'>>) {
+    if (NAV_CATEGORIES[key].includes(cat as BentoCategory)) return key
+  }
+  return 'home'
+}
 
 interface Props {
   /** The page drives `--np` (0 → 1) and `--nav-final` on this element while you scroll. */

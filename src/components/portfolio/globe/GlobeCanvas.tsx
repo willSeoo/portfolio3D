@@ -116,7 +116,7 @@ function Scene({ onTap }: SceneProps) {
       s.lastY = s.startY = e.clientY
       s.vy = s.vp = 0
       el.setPointerCapture?.(e.pointerId)
-      setModelCursor('grabbing')
+      setModelCursor('grabbing', 'dark')
     }
     const move = (e: PointerEvent) => {
       if (!s.down) return
@@ -135,10 +135,10 @@ function Scene({ onTap }: SceneProps) {
       s.down = false
       s.idleSince = performance.now()
       el.releasePointerCapture?.(e.pointerId)
-      setModelCursor('grab')
+      setModelCursor('grab', 'dark')
       if (!s.moved) onTapRef.current?.()
     }
-    const enter = () => setModelCursor(s.down ? 'grabbing' : 'grab')
+    const enter = () => setModelCursor(s.down ? 'grabbing' : 'grab', 'dark')
     const leave = () => {
       if (!s.down) setModelCursor(null)
     }

@@ -10,6 +10,7 @@ import { bentoItems } from './bentoData'
 import { buildRows } from './layout'
 import { clamp, easeInOutSine, lerp, smoothstep } from './math'
 import { Navbar } from './Navbar'
+import { NAV_CATEGORIES, navKeyFor } from './Navbar'
 import type { NavKey } from './Navbar'
 import './portfolio.css'
 
@@ -60,7 +61,8 @@ export function PortfolioPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
-    const card = gridRef.current?.querySelector<HTMLElement>(`[data-cat="${key}"]`)
+    const cats = NAV_CATEGORIES[key]
+    const card = gridRef.current && cats.length ? gridRef.current.querySelector<HTMLElement>(cats.map((c) => `[data-cat="${c}"]`).join(',')) : null
     const row = card?.parentElement
     const spacer = spacerRef.current
     if (!row || !spacer) return
@@ -273,7 +275,7 @@ export function PortfolioPage() {
           const r = el.getBoundingClientRect()
           if (!best || r.top < best.top - 4 || (Math.abs(r.top - best.top) <= 4 && r.left < best.left)) {
             best = r
-            bestCat = el.dataset.cat as NavKey
+            bestCat = navKeyFor(el.dataset.cat ?? 'home')
           }
         })
         catInView.current = bestCat
