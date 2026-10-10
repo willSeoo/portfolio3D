@@ -41,10 +41,10 @@ export const showcaseItems: ShowcaseItem[] = [
   },
   {
     kind: 'model',
-    model: 'swatch',
+    model: 'cintiq',
     id: 'graphic',
     title: 'Graphic Design',
-    category: 'Brand & Poster', // colour-swatch fan = Graphic Design
+    category: 'Brand & Poster', // pen display = Graphic Design
     year: '2026',
     href: '/projects/graphic',
   },

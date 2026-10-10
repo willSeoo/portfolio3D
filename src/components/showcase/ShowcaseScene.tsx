@@ -54,6 +54,7 @@ export function ShowcaseScene({ showNav = true, active = true }: SceneProps) {
       return () => {
         cancelAnimationFrame(raf1)
         window.clearTimeout(tf)
+        setFlash(false) // never leave the white flash stuck on if this phase ends before its timer fires
       }
     } else {
       setStyle(REST)
