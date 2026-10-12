@@ -20,22 +20,22 @@ export const showcaseItems: ShowcaseItem[] = [
   {
     kind: 'model',
     model: 'laptop',
-    id: 'motion',
-    title: 'Motion',
-    category: 'Loop Studies', // laptop = Motion
+    id: 'ledger-ui',
+    title: 'UI/UX Design',
+    category: 'Ledger — Finance Agent UI', // MacBook = UI/UX Design
     year: '2026',
-    href: '/projects/motion',
+    href: '/projects/ledger',
   },
   {
     kind: 'model',
-    model: 'phone',
-    id: 'comick',
-    title: 'UI/UX Design',
-    category: 'ComicK Redesign', // phone = UI/UX Design
+    model: 'oldpc',
+    id: 'reel-weird',
+    title: 'Software Engineering',
+    category: 'Reel Weird', // old PC = Software Engineering
     year: '2026',
-    href: '/projects/comick',
-    thumbnail: 'https://picsum.photos/seed/comick-app/600/1300',
-    tone: '#dce4cf',
+    href: '/projects/reel-weird',
+    thumbnail: 'https://picsum.photos/seed/reel-weird-game/900/700',
+    tone: '#ece0b9',
   },
   {
     kind: 'model',
@@ -48,13 +48,13 @@ export const showcaseItems: ShowcaseItem[] = [
   },
   {
     kind: 'model',
-    model: 'oldpc',
-    id: 'reel-weird',
-    title: 'Software Engineering',
-    category: 'Reel Weird', // old PC = Software Engineering
+    model: 'phone',
+    id: 'comick',
+    title: 'UI/UX Design',
+    category: 'ComicK Redesign', // phone = UI/UX Design
     year: '2026',
-    href: '/projects/reel-weird',
-    thumbnail: 'https://picsum.photos/seed/reel-weird-game/900/700',
-    tone: '#ece0b9',
+    href: '/projects/comick',
+    thumbnail: 'https://picsum.photos/seed/comick-app/600/1300',
+    tone: '#dce4cf',
   },
 ]

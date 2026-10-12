@@ -262,7 +262,9 @@ export function PenDisplayModel({ size }: { item: ModelShowcaseItem; size: numbe
   const sh = (sw * 9) / 16
   const Hd = sh + 2 * b // body height
   const T = Wd * 0.03 // thickness
-  const alpha = (25 * Math.PI) / 180 // incline from the desk
+  const alpha = (27 * Math.PI) / 180 // incline from the desk
+  const lift = Wd * 0.06 // the display's lower edge rests on feet this high, so it sits up on its stand
+  const VIEW_TILT = 0.72 // the whole set-up is turned this far towards the viewer
 
   const body = useMemo(() => roundedSlabGeometry(Wd, Hd, T, Wd * 0.022, T * 0.18), [Wd, Hd, T])
   const bodyMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#17181b', roughness: 0.42, metalness: 0.45 }), [])
@@ -286,14 +288,14 @@ export function PenDisplayModel({ size }: { item: ModelShowcaseItem; size: numbe
   // ---- fold-out legs (desk space: y up, z towards the viewer; the display's lower edge sits at z = zf)
   const zf = Wd * 0.1
   const hingeDist = Hd * 0.72 // along the display, from its lower edge
-  const hinge = new THREE.Vector3(0, hingeDist * Math.sin(alpha), zf - hingeDist * Math.cos(alpha))
+  const hinge = new THREE.Vector3(0, lift + hingeDist * Math.sin(alpha), zf - hingeDist * Math.cos(alpha))
   const phi = (30 * Math.PI) / 180 // how far the legs splay back from vertical
   const legLen = hinge.y / Math.cos(phi)
   const legDir = new THREE.Vector3(0, -Math.cos(phi), -Math.sin(phi))
   const legQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, -1, 0), legDir)
   const legX = Wd * 0.3
-  const legW = Wd * 0.075
-  const legT = Wd * 0.014
+  const legW = Wd * 0.085
+  const legT = Wd * 0.016
 
   // ---- the pen stands upright in a round pen rest on the desk, to the right of the display
   const Lp = Wd * 0.32
@@ -305,10 +307,10 @@ export function PenDisplayModel({ size }: { item: ModelShowcaseItem; size: numbe
 
   return (
     // the whole desk set-up is turned a little towards the viewer so the screen reads from the front
-    <group position={[0, -Wd * 0.2, 0]} rotation={[0.72, 0, 0]}>
+    <group position={[0, -Wd * 0.2, 0]} rotation={[VIEW_TILT, 0, 0]}>
       <group position={[0, 0, -zf * 0.4 - Wd * 0.1]}>
         {/* display, pivoting on its lower back edge */}
-        <group position={[0, 0, zf]} rotation={[-(Math.PI / 2 - alpha), 0, 0]}>
+        <group position={[0, lift, zf]} rotation={[-(Math.PI / 2 - alpha), 0, 0]}>
           <mesh geometry={body} material={bodyMat} position={[0, Hd / 2, T / 2]} />
           {/* screen */}
           <mesh position={[kb / 2, Hd / 2, T + 0.0006]}>
@@ -328,13 +330,14 @@ export function PenDisplayModel({ size }: { item: ModelShowcaseItem; size: numbe
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <mesh key={i} geometry={keyGeo} material={buttonMat} position={[-Wd / 2 + (b + kb) / 2, Hd / 2 + (2.5 - i) * Wd * 0.052, T + T * 0.1]} />
           ))}
-          {/* rubber feet on the lower back edge */}
-          {[-1, 1].map((s) => (
-            <mesh key={s} material={rubberMat} position={[s * Wd * 0.4, Wd * 0.006, -Wd * 0.002]}>
-              <boxGeometry args={[Wd * 0.07, Wd * 0.012, Wd * 0.012]} />
-            </mesh>
-          ))}
         </group>
+
+        {/* front feet: posts that lift the lower edge off the desk */}
+        {[-1, 1].map((s2) => (
+          <mesh key={s2} material={rubberMat} position={[s2 * Wd * 0.4, lift / 2, zf - Wd * 0.006]}>
+            <boxGeometry args={[Wd * 0.07, lift, Wd * 0.016]} />
+          </mesh>
+        ))}
 
         {/* fold-out legs + their hinge bar */}
         {[-1, 1].map((s) => (
@@ -363,7 +366,8 @@ export function PenDisplayModel({ size }: { item: ModelShowcaseItem; size: numbe
             <circleGeometry args={[Rs * 0.36, 32]} />
           </mesh>
           {/* the pen: nib down in the rest, eraser end up, the two side buttons facing the viewer */}
-          <group position={[0, penCY, 0]} rotation={[0, -Math.PI / 2 + 0.35, 0]}>
+          <group position={[0, hs * 1.056, 0]} rotation={[-VIEW_TILT, 0, 0]}>
+          <group position={[0, penCY - hs * 1.056, 0]} rotation={[0, -Math.PI / 2 + 0.35, 0]}>
             <group rotation={[0, 0, -Math.PI / 2]}>
               <mesh material={penMat} rotation={[0, 0, Math.PI / 2]} position={[-Lp * 0.04, 0, 0]}>
                 <cylinderGeometry args={[rp, rp, Lp * 0.78, 28]} />
@@ -386,6 +390,7 @@ export function PenDisplayModel({ size }: { item: ModelShowcaseItem; size: numbe
                 </mesh>
               ))}
             </group>
+          </group>
           </group>
         </group>
       </group>

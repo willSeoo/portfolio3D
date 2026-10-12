@@ -24,20 +24,38 @@ function drawScreen(): HTMLCanvasElement {
     c.closePath()
   }
 
-  // wallpaper: deep blue → violet with soft light blobs
-  const g = c.createLinearGradient(0, 0, W, H)
-  g.addColorStop(0, '#16224f')
-  g.addColorStop(0.5, '#3b3a9e')
-  g.addColorStop(1, '#8a4fc7')
-  c.fillStyle = g
+  // wallpaper: a fan of blue petals (generic, drawn here) on deep blue
+  const bgG = c.createLinearGradient(0, 0, W, H)
+  bgG.addColorStop(0, '#0a1a4a')
+  bgG.addColorStop(1, '#0d2f8f')
+  c.fillStyle = bgG
   c.fillRect(0, 0, W, H)
-  ;[[420, 980, 520, 'rgba(94,170,255,0.38)'], [1560, 260, 460, 'rgba(255,128,170,0.30)'], [1100, 1100, 420, 'rgba(120,255,214,0.18)']].forEach(([x, y, r, col]) => {
-    const rg = c.createRadialGradient(x as number, y as number, 0, x as number, y as number, r as number)
-    rg.addColorStop(0, col as string)
-    rg.addColorStop(1, 'rgba(0,0,0,0)')
-    c.fillStyle = rg
-    c.fillRect(0, 0, W, H)
-  })
+  {
+    const cx = W * 0.5
+    const cy = H * 1.12
+    const petals = 22
+    for (let i = 0; i < petals; i++) {
+      const a = -Math.PI / 2 + ((i - (petals - 1) / 2) / (petals - 1)) * Math.PI * 1.18
+      c.save()
+      c.translate(cx, cy)
+      c.rotate(a + Math.PI / 2)
+      const len = H * (0.95 + 0.12 * Math.sin(i * 1.7))
+      const wid = H * 0.17
+      const pg = c.createLinearGradient(0, -len, 0, 0)
+      pg.addColorStop(0, '#9cc9ff')
+      pg.addColorStop(0.45, '#3f7bff')
+      pg.addColorStop(1, '#0b2a8a')
+      c.fillStyle = pg
+      c.beginPath()
+      c.ellipse(0, -len * 0.58, wid, len * 0.46, 0, 0, Math.PI * 2)
+      c.fill()
+      c.fillStyle = 'rgba(2,10,48,0.55)'
+      c.beginPath()
+      c.ellipse(wid * 0.55, -len * 0.5, wid * 0.55, len * 0.4, 0, 0, Math.PI * 2)
+      c.fill()
+      c.restore()
+    }
+  }
 
   // menu bar (generic items, no logos)
   c.fillStyle = 'rgba(255,255,255,0.16)'
@@ -272,6 +290,45 @@ function drawScreen(): HTMLCanvasElement {
   return cv
 }
 
+const LEGENDS: string[][] = [
+  ['esc', ...Array.from({ length: 12 }, (_, i) => `F${i + 1}`), ''],
+  ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'delete'],
+  ['tab', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
+  ['caps', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'", 'return'],
+  ['shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'shift'],
+  ['fn', 'control', 'option', 'command', '', 'command', 'option', '◀', '▼', '▶'],
+]
+
+/** Light-grey legends laid over the black keys, in the same layout as the keys. */
+function drawLegends(keyRows: Array<{ h: number; keys: number[] }>): HTMLCanvasElement {
+  const U = 128
+  const totalH = keyRows.reduce((n, r) => n + r.h, 0)
+  const cv = document.createElement('canvas')
+  cv.width = Math.round(14.5 * U)
+  cv.height = Math.round(totalH * U)
+  const c = cv.getContext('2d')!
+  c.fillStyle = '#9097a6'
+  c.textAlign = 'center'
+  c.textBaseline = 'middle'
+  let y = 0
+  keyRows.forEach((row, ri) => {
+    let x = 0
+    row.keys.forEach((w, ki) => {
+      const label = LEGENDS[ri][ki] ?? ''
+      const cx = (x + w / 2) * U
+      const cy = (y + row.h / 2) * U
+      if (label) {
+        const word = label.length > 1 && !'◀▼▶'.includes(label)
+        c.font = word ? `600 ${ri === 0 ? 24 : 27}px system-ui, sans-serif` : `600 ${ri === 0 ? 26 : 44}px system-ui, sans-serif`
+        c.fillText(label, cx, cy + (word && ri > 0 ? 24 : 0))
+      }
+      x += w
+    })
+    y += row.h
+  })
+  return cv
+}
+
 /** Thin dark slits for the speaker grille strip (alpha-tested, so no blending). */
 function drawGrille(): HTMLCanvasElement {
   const cv = document.createElement('canvas')
@@ -316,7 +373,7 @@ export function LaptopModel({ size }: { item: ModelShowcaseItem; size: number })
 
   const baseGeo = useMemo(() => roundedSlabGeometry(W, D, Tb, rCorner, Tb * 0.28), [W, D, Tb, rCorner])
   const lidGeo = useMemo(() => roundedSlabGeometry(W, D, Tl, rCorner, Tl * 0.28), [W, D, Tl, rCorner])
-  const alu = useMemo(() => new THREE.MeshStandardMaterial({ color: '#343d4b', roughness: 0.62, metalness: 0.62 }), [])
+  const alu = useMemo(() => new THREE.MeshStandardMaterial({ color: '#3b4559', roughness: 0.5, metalness: 0.58 }), [])
   const glassMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#030305', roughness: 0.16, metalness: 0.25 }), [])
   const glassGeo = useMemo(() => roundedFaceGeometry(W - 2 * m, D - 2 * m, rCorner * 0.7), [W, D, m, rCorner])
 
@@ -335,6 +392,12 @@ export function LaptopModel({ size }: { item: ModelShowcaseItem; size: number })
     return t
   }, [])
   const grilleTex = useMemo(() => new THREE.CanvasTexture(drawGrille()), [])
+  const legendTex = useMemo(() => {
+    const t = new THREE.CanvasTexture(drawLegends(KEY_ROWS))
+    t.colorSpace = THREE.SRGBColorSpace
+    t.anisotropy = 8
+    return t
+  }, [])
 
   // keys
   const keysRef = useRef<THREE.InstancedMesh>(null)
@@ -373,13 +436,13 @@ export function LaptopModel({ size }: { item: ModelShowcaseItem; size: number })
   const tpZ = D / 2 - D * 0.03 - tpD / 2
   const tpGeo = useMemo(() => roundedFaceGeometry(tpW, tpD, W * 0.008), [tpW, tpD, W])
   const tpRimGeo = useMemo(() => roundedFaceGeometry(tpW + W * 0.006, tpD + W * 0.006, W * 0.0095), [tpW, tpD, W])
-  const tpMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#2c3441', roughness: 0.14, metalness: 0.22 }), [])
+  const tpMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#303847', roughness: 0.14, metalness: 0.22 }), [])
   const tpRimMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#1a1f27', roughness: 0.6, metalness: 0.3 }), [])
   const hingeMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#14171d', roughness: 0.5, metalness: 0.6 }), [])
 
   return (
     // turned a little towards the viewer so the screen *and* the keyboard both read
-    <group position={[0, -size * 0.36, 0]} rotation={[0.5, 0, 0]}>
+    <group position={[0, -size * 0.47, 0]} rotation={[0.5, 0, 0]}>
       {/* base */}
       <mesh geometry={baseGeo} material={alu} rotation={[-Math.PI / 2, 0, 0]} position={[0, Tb / 2, 0]} />
       {/* speaker grille strip above the keys */}
@@ -389,6 +452,22 @@ export function LaptopModel({ size }: { item: ModelShowcaseItem; size: number })
       </mesh>
       {/* keys */}
       <instancedMesh ref={keysRef} args={[undefined, undefined, keyCount]} material={keyMat} geometry={keyGeo} />
+      {/* key legends */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, Tb + kt + 0.0007, zBack + (KEY_ROWS.reduce((n, r) => n + r.h, 0) * p) / 2]}>
+        <planeGeometry args={[kbW, KEY_ROWS.reduce((n, r) => n + r.h, 0) * p]} />
+        <meshBasicMaterial map={legendTex} transparent depthWrite={false} toneMapped={false} />
+      </mesh>
+      {/* thumb notch on the front edge */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, Tb + 0.0006, D / 2 - D * 0.012]}>
+        <planeGeometry args={[W * 0.13, D * 0.014]} />
+        <meshBasicMaterial color="#141922" toneMapped={false} />
+      </mesh>
+      {/* rubber feet */}
+      {[-1, 1].flatMap((sx) => [-1, 1].map((sz) => (
+        <mesh key={`${sx}${sz}`} material={hingeMat} position={[sx * W * 0.4, -W * 0.0025, sz * D * 0.4]}>
+          <boxGeometry args={[W * 0.085, W * 0.005, D * 0.05]} />
+        </mesh>
+      )))}
       {/* trackpad */}
       <mesh geometry={tpRimGeo} material={tpRimMat} rotation={[-Math.PI / 2, 0, 0]} position={[0, Tb + 0.0004, tpZ]} />
       <mesh geometry={tpGeo} material={tpMat} rotation={[-Math.PI / 2, 0, 0]} position={[0, Tb + 0.0008, tpZ]} />
