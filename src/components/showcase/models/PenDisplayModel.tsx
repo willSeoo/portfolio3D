@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import * as THREE from 'three'
 import type { ModelShowcaseItem } from '../types'
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
 import { roundedSlabGeometry } from './geometry'
 
 /* ------------------------------------------------------------------ the screen: a poster mid-design */
@@ -250,13 +251,14 @@ function drawScreen(): HTMLCanvasElement {
 
 /**
  * Graphic design = a 16"-class pen display: slim black slab, thin even bezels, one tiny power
- * button on the edge, propped on fold-out legs at 25° like a drawing desk, a pen with two side
- * buttons lying beside it, and a poster/logo in progress on the screen. No logos anywhere.
+ * button on the edge, a column of shortcut keys on the left bezel, propped on fold-out legs at 25°
+ * like a drawing desk, a pen with two side buttons standing in a round pen rest beside it, and a poster/logo in progress on the screen. No logos anywhere.
  */
 export function PenDisplayModel({ size }: { item: ModelShowcaseItem; size: number }) {
   const Wd = size * 1.3 // body width
-  const b = Wd * 0.032 // bezel, equal all round
-  const sw = Wd - 2 * b // screen width
+  const b = Wd * 0.032 // bezel, equal all round (the left one is wider: it carries the shortcut keys)
+  const kb = Wd * 0.05 // extra width on the left bezel for the keys
+  const sw = Wd - 2 * b - kb // screen width
   const sh = (sw * 9) / 16
   const Hd = sh + 2 * b // body height
   const T = Wd * 0.03 // thickness
@@ -269,6 +271,9 @@ export function PenDisplayModel({ size }: { item: ModelShowcaseItem; size: numbe
   const penMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#16171a', roughness: 0.4, metalness: 0.35 }), [])
   const gripMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#2b2c31', roughness: 0.85, metalness: 0.05 }), [])
   const penBtnMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#8a8d96', roughness: 0.35, metalness: 0.7 }), [])
+  const keyGeo = useMemo(() => new RoundedBoxGeometry(Wd * 0.034, Wd * 0.024, T * 0.3, 3, Wd * 0.006), [Wd, T])
+  const standMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#1a1b1e', roughness: 0.55, metalness: 0.3 }), [])
+  const standRingMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#4a4b52', roughness: 0.3, metalness: 0.85 }), [])
   const nibMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#cfd2d8', roughness: 0.3, metalness: 0.8 }), [])
 
   const screenTex = useMemo(() => {
@@ -290,10 +295,13 @@ export function PenDisplayModel({ size }: { item: ModelShowcaseItem; size: numbe
   const legW = Wd * 0.075
   const legT = Wd * 0.014
 
-  // ---- the pen, lying beside the display (built along +x, tip to the right)
-  const Lp = Wd * 0.36
+  // ---- the pen stands upright in a round pen rest on the desk, to the right of the display
+  const Lp = Wd * 0.32
   const rp = Wd * 0.0125
-  const penPos = new THREE.Vector3(Wd * 0.42, rp, zf + Wd * 0.2)
+  const Rs = Wd * 0.075 // pen-rest radius
+  const hs = Wd * 0.07 // pen-rest height
+  const standPos = new THREE.Vector3(Wd * 0.66, 0, zf - Wd * 0.1)
+  const penCY = Lp * 0.6 + hs * 0.2 // nib sits just inside the rest
 
   return (
     // the whole desk set-up is turned a little towards the viewer so the screen reads from the front
@@ -303,12 +311,12 @@ export function PenDisplayModel({ size }: { item: ModelShowcaseItem; size: numbe
         <group position={[0, 0, zf]} rotation={[-(Math.PI / 2 - alpha), 0, 0]}>
           <mesh geometry={body} material={bodyMat} position={[0, Hd / 2, T / 2]} />
           {/* screen */}
-          <mesh position={[0, Hd / 2, T + 0.0006]}>
+          <mesh position={[kb / 2, Hd / 2, T + 0.0006]}>
             <planeGeometry args={[sw, sh]} />
             <meshBasicMaterial map={screenTex} toneMapped={false} />
           </mesh>
           {/* hairline inner frame so the glass reads as sunk into the bezel */}
-          <mesh position={[0, Hd / 2, T + 0.0003]}>
+          <mesh position={[kb / 2, Hd / 2, T + 0.0003]}>
             <planeGeometry args={[sw + Wd * 0.006, sh + Wd * 0.006]} />
             <meshBasicMaterial color="#050506" toneMapped={false} />
           </mesh>
@@ -316,6 +324,10 @@ export function PenDisplayModel({ size }: { item: ModelShowcaseItem; size: numbe
           <mesh material={buttonMat} position={[Wd / 2 + Wd * 0.0018, Hd * 0.78, T / 2]}>
             <boxGeometry args={[Wd * 0.006, Wd * 0.024, T * 0.34]} />
           </mesh>
+          {/* shortcut keys: a column of six on the left bezel */}
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <mesh key={i} geometry={keyGeo} material={buttonMat} position={[-Wd / 2 + (b + kb) / 2, Hd / 2 + (2.5 - i) * Wd * 0.052, T + T * 0.1]} />
+          ))}
           {/* rubber feet on the lower back edge */}
           {[-1, 1].map((s) => (
             <mesh key={s} material={rubberMat} position={[s * Wd * 0.4, Wd * 0.006, -Wd * 0.002]}>
@@ -339,29 +351,42 @@ export function PenDisplayModel({ size }: { item: ModelShowcaseItem; size: numbe
           <cylinderGeometry args={[legT * 0.55, legT * 0.55, legX * 2 + legW, 16]} />
         </mesh>
 
-        {/* the pen: nib, grip, barrel with two side buttons, eraser end */}
-        <group position={penPos} rotation={[0, -0.42, 0]}>
-          <mesh material={penMat} rotation={[0, 0, Math.PI / 2]} position={[-Lp * 0.04, 0, 0]}>
-            <cylinderGeometry args={[rp, rp, Lp * 0.78, 28]} />
+        {/* the pen rest: a round, weighted base the pen stands in */}
+        <group position={standPos}>
+          <mesh material={standMat} position={[0, hs / 2, 0]}>
+            <cylinderGeometry args={[Rs * 0.9, Rs, hs, 56]} />
           </mesh>
-          <mesh material={gripMat} rotation={[0, 0, Math.PI / 2]} position={[Lp * 0.28, 0, 0]}>
-            <cylinderGeometry args={[rp * 1.08, rp * 1.08, Lp * 0.26, 28]} />
+          <mesh material={standRingMat} position={[0, hs, 0]}>
+            <cylinderGeometry args={[Rs * 0.88, Rs * 0.9, hs * 0.1, 56]} />
           </mesh>
-          <mesh material={penMat} rotation={[0, 0, -Math.PI / 2]} position={[Lp * 0.5, 0, 0]}>
-            <coneGeometry args={[rp, Lp * 0.12, 28]} />
+          <mesh material={rubberMat} position={[0, hs * 1.056, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[Rs * 0.36, 32]} />
           </mesh>
-          <mesh material={nibMat} rotation={[0, 0, -Math.PI / 2]} position={[Lp * 0.585, 0, 0]}>
-            <coneGeometry args={[rp * 0.28, Lp * 0.06, 16]} />
-          </mesh>
-          <mesh material={penMat} rotation={[0, 0, Math.PI / 2]} position={[-Lp * 0.46, 0, 0]}>
-            <cylinderGeometry args={[rp * 0.96, rp * 0.9, Lp * 0.08, 28]} />
-          </mesh>
-          {/* the two side buttons */}
-          {[0.12, 0.2].map((x) => (
-            <mesh key={x} material={penBtnMat} position={[Lp * x, rp * 0.98, 0]}>
-              <boxGeometry args={[Lp * 0.065, rp * 0.42, rp * 0.86]} />
-            </mesh>
-          ))}
+          {/* the pen: nib down in the rest, eraser end up, the two side buttons facing the viewer */}
+          <group position={[0, penCY, 0]} rotation={[0, -Math.PI / 2 + 0.35, 0]}>
+            <group rotation={[0, 0, -Math.PI / 2]}>
+              <mesh material={penMat} rotation={[0, 0, Math.PI / 2]} position={[-Lp * 0.04, 0, 0]}>
+                <cylinderGeometry args={[rp, rp, Lp * 0.78, 28]} />
+              </mesh>
+              <mesh material={gripMat} rotation={[0, 0, Math.PI / 2]} position={[Lp * 0.28, 0, 0]}>
+                <cylinderGeometry args={[rp * 1.08, rp * 1.08, Lp * 0.26, 28]} />
+              </mesh>
+              <mesh material={penMat} rotation={[0, 0, -Math.PI / 2]} position={[Lp * 0.5, 0, 0]}>
+                <coneGeometry args={[rp, Lp * 0.12, 28]} />
+              </mesh>
+              <mesh material={nibMat} rotation={[0, 0, -Math.PI / 2]} position={[Lp * 0.585, 0, 0]}>
+                <coneGeometry args={[rp * 0.28, Lp * 0.06, 16]} />
+              </mesh>
+              <mesh material={penMat} rotation={[0, 0, Math.PI / 2]} position={[-Lp * 0.46, 0, 0]}>
+                <cylinderGeometry args={[rp * 0.96, rp * 0.9, Lp * 0.08, 28]} />
+              </mesh>
+              {[0.12, 0.2].map((x) => (
+                <mesh key={x} material={penBtnMat} position={[Lp * x, rp * 0.98, 0]}>
+                  <boxGeometry args={[Lp * 0.065, rp * 0.42, rp * 0.86]} />
+                </mesh>
+              ))}
+            </group>
+          </group>
         </group>
       </group>
     </group>

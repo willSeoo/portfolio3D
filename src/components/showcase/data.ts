@@ -19,6 +19,15 @@ export const showcaseItems: ShowcaseItem[] = [
   },
   {
     kind: 'model',
+    model: 'laptop',
+    id: 'motion',
+    title: 'Motion',
+    category: 'Loop Studies', // laptop = Motion
+    year: '2026',
+    href: '/projects/motion',
+  },
+  {
+    kind: 'model',
     model: 'phone',
     id: 'comick',
     title: 'UI/UX Design',
@@ -30,6 +39,15 @@ export const showcaseItems: ShowcaseItem[] = [
   },
   {
     kind: 'model',
+    model: 'cintiq',
+    id: 'graphic',
+    title: 'Graphic Design',
+    category: 'Brand & Poster', // pen display = Graphic Design
+    year: '2026',
+    href: '/projects/graphic',
+  },
+  {
+    kind: 'model',
     model: 'oldpc',
     id: 'reel-weird',
     title: 'Software Engineering',
@@ -38,14 +56,5 @@ export const showcaseItems: ShowcaseItem[] = [
     href: '/projects/reel-weird',
     thumbnail: 'https://picsum.photos/seed/reel-weird-game/900/700',
     tone: '#ece0b9',
-  },
-  {
-    kind: 'model',
-    model: 'cintiq',
-    id: 'graphic',
-    title: 'Graphic Design',
-    category: 'Brand & Poster', // pen display = Graphic Design
-    year: '2026',
-    href: '/projects/graphic',
   },
 ]

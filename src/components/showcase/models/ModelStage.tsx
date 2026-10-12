@@ -5,7 +5,8 @@ import type { ModelShowcaseItem } from '../types'
 import { heroZoom } from '../heroZoom'
 import { setModelCursor } from '../../cursor/cursorBus'
 import { CardModel } from './CardModel'
-import { OldPCModel } from './OldPCModel'
+import { LaptopModel } from './LaptopModel'
+import { RetroComputerModel } from './RetroComputerModel'
 import { PhoneModel } from './PhoneModel'
 import { PenDisplayModel } from './PenDisplayModel'
 import { useGrabRotate } from './useGrabRotate'
@@ -15,8 +16,9 @@ import { useGrabRotate } from './useGrabRotate'
 const HEIGHT_FRACTION: Record<ModelShowcaseItem['model'], number> = {
   card: 0.53,
   phone: 0.78,
-  oldpc: 0.57,
-  cintiq: 0.62,
+  oldpc: 0.54,
+  laptop: 0.5,
+  cintiq: 0.7,
 }
 
 /**
@@ -78,7 +80,8 @@ export function ModelStage({ item, onOpenPopup }: Props) {
     >
       {item.model === 'card' && <CardModel item={item} size={size} />}
       {item.model === 'phone' && <PhoneModel item={item} size={size} />}
-      {item.model === 'oldpc' && <OldPCModel item={item} size={size} />}
+      {item.model === 'oldpc' && <RetroComputerModel item={item} size={size} />}
+      {item.model === 'laptop' && <LaptopModel item={item} size={size} />}
       {item.model === 'cintiq' && <PenDisplayModel item={item} size={size} />}
     </group>
     </group>
