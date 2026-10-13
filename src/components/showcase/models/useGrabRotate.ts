@@ -14,13 +14,15 @@ const IDLE_DELAY = 500 // ms of being fully settled before the idle turn resumes
 const IDLE_SPEED = 0.16 // rad/sec — a slow, deliberate turn, not a spin
 
 /**
- * Grab-and-spin: drag rotates the object freely on world axes, release lets
- * it coast to a stop, and once it's been still for a moment it slowly turns
- * on its own (paused instantly the moment it's grabbed again). Also reports
- * a click (near-zero movement, released quickly) separately from a drag.
+ * Grab-and-spin: drag rotates the object freely on world axes and release lets
+ * it coast to a stop. Until someone first touches it, it keeps turning slowly on
+ * its own; the moment it's grabbed, that automatic turn is gone for good (it only
+ * moves when you move it). Also reports a click (near-zero movement, released
+ * quickly) separately from a drag.
  */
 export function useGrabRotate(targetRef: RefObject<THREE.Object3D | null>, onClick: () => void) {
   const dragging = useRef(false)
+  const grabbed = useRef(false) // set on the first press: from then on it never turns by itself
   const last = useRef({ x: 0, y: 0 })
   const down = useRef({ x: 0, y: 0, t: 0 })
   const moved = useRef(0)
@@ -82,7 +84,8 @@ export function useGrabRotate(targetRef: RefObject<THREE.Object3D | null>, onCli
       settledAt.current = performance.now()
       return
     }
-    // fully settled — after a short pause, ease into a slow idle turn
+    // never been touched — keep turning slowly; once it has been grabbed, it stays put
+    if (grabbed.current) return
     if (performance.now() - settledAt.current > IDLE_DELAY) {
       applyDelta(IDLE_SPEED * dt * (1 / SENSITIVITY), 0)
     }
@@ -90,6 +93,7 @@ export function useGrabRotate(targetRef: RefObject<THREE.Object3D | null>, onCli
 
   const onPointerDown = (e: { clientX: number; clientY: number; pointerId: number; target: EventTarget | null }) => {
     dragging.current = true
+    grabbed.current = true
     last.current = { x: e.clientX, y: e.clientY }
     down.current = { x: e.clientX, y: e.clientY, t: performance.now() }
     moved.current = 0
