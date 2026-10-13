@@ -1,7 +1,7 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useRef, useState } from 'react'
 import * as THREE from 'three'
-import type { ModelShowcaseItem } from '../types'
+import type { ModelShowcaseItem, ModelType } from '../types'
 import { heroZoom } from '../heroZoom'
 import { setModelCursor } from '../../cursor/cursorBus'
 import { CardModel } from './CardModel'
@@ -19,6 +19,15 @@ const HEIGHT_FRACTION: Record<ModelShowcaseItem['model'], number> = {
   oldpc: 0.54,
   laptop: 0.5,
   cintiq: 0.7,
+}
+
+/** How big each model is once it sits in bento #1, relative to its fullscreen size (the wide set-ups need to be smaller to fit the card). */
+const DOCK_ZOOM: Record<ModelType, number> = {
+  card: 1.05,
+  phone: 1.05,
+  laptop: 0.76,
+  oldpc: 0.78,
+  cintiq: 0.72,
 }
 
 /**
@@ -51,9 +60,9 @@ export function ModelStage({ item, onOpenPopup }: Props) {
   const groupRef = useRef<THREE.Group>(null)
   const { onPointerDown, dragging } = useGrabRotate(groupRef, onOpenPopup)
   const [hovered, setHovered] = useState(false)
-  // heroZoom is driven by the scroll transition (1 = fullscreen hero, <1 when docked in its card)
+  // heroZoom.dock is driven by the scroll transition (0 = fullscreen hero, 1 = docked in bento #1)
   // (capped so a tall model like the phone can't outgrow the canvas and get its ends cut off)
-  useFrame(() => zoomRef.current?.scale.setScalar(Math.min(heroZoom.value, 0.88 / fraction)))
+  useFrame(() => zoomRef.current?.scale.setScalar(Math.min(1 + (DOCK_ZOOM[item.model] - 1) * heroZoom.dock, 0.88 / fraction)))
   const size = stagePx * worldPerPx * fraction
 
   return (

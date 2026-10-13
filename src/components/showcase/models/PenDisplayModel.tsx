@@ -307,7 +307,7 @@ export function PenDisplayModel({ size }: { item: ModelShowcaseItem; size: numbe
 
   return (
     // the whole desk set-up is turned a little towards the viewer so the screen reads from the front
-    <group position={[0, -Wd * 0.2, 0]} rotation={[VIEW_TILT, 0, 0]}>
+    <group position={[0, -Wd * 0.31, 0]} rotation={[VIEW_TILT, 0, 0]}>
       <group position={[0, 0, -zf * 0.4 - Wd * 0.1]}>
         {/* display, pivoting on its lower back edge */}
         <group position={[0, lift, zf]} rotation={[-(Math.PI / 2 - alpha), 0, 0]}>

@@ -74,7 +74,11 @@ function drawScreen(): HTMLCanvasElement {
     c.fill()
   })
 
-  // app window
+  // app window (drawn at full size, then scaled down so the wallpaper stays the star)
+  c.save()
+  c.translate(W / 2, H * 0.5)
+  c.scale(0.66, 0.66)
+  c.translate(-W / 2, -(96 + 960 / 2))
   const wx = 150
   const wy = 96
   const ww = W - 300
@@ -251,6 +255,7 @@ function drawScreen(): HTMLCanvasElement {
   c.closePath()
   c.fill()
   c.restore()
+  c.restore() // end of the scaled window
 
   // dock
   c.fillStyle = 'rgba(255,255,255,0.22)'
@@ -373,7 +378,7 @@ export function LaptopModel({ size }: { item: ModelShowcaseItem; size: number })
 
   const baseGeo = useMemo(() => roundedSlabGeometry(W, D, Tb, rCorner, Tb * 0.28), [W, D, Tb, rCorner])
   const lidGeo = useMemo(() => roundedSlabGeometry(W, D, Tl, rCorner, Tl * 0.28), [W, D, Tl, rCorner])
-  const alu = useMemo(() => new THREE.MeshStandardMaterial({ color: '#3b4559', roughness: 0.5, metalness: 0.58 }), [])
+  const alu = useMemo(() => new THREE.MeshStandardMaterial({ color: '#262d3b', roughness: 0.74, metalness: 0.4 }), [])
   const glassMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#030305', roughness: 0.16, metalness: 0.25 }), [])
   const glassGeo = useMemo(() => roundedFaceGeometry(W - 2 * m, D - 2 * m, rCorner * 0.7), [W, D, m, rCorner])
 
@@ -436,13 +441,13 @@ export function LaptopModel({ size }: { item: ModelShowcaseItem; size: number })
   const tpZ = D / 2 - D * 0.03 - tpD / 2
   const tpGeo = useMemo(() => roundedFaceGeometry(tpW, tpD, W * 0.008), [tpW, tpD, W])
   const tpRimGeo = useMemo(() => roundedFaceGeometry(tpW + W * 0.006, tpD + W * 0.006, W * 0.0095), [tpW, tpD, W])
-  const tpMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#303847', roughness: 0.14, metalness: 0.22 }), [])
+  const tpMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#222936', roughness: 0.14, metalness: 0.22 }), [])
   const tpRimMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#1a1f27', roughness: 0.6, metalness: 0.3 }), [])
   const hingeMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#14171d', roughness: 0.5, metalness: 0.6 }), [])
 
   return (
     // turned a little towards the viewer so the screen *and* the keyboard both read
-    <group position={[0, -size * 0.47, 0]} rotation={[0.5, 0, 0]}>
+    <group position={[0, -size * 0.53, 0]} rotation={[0.5, 0, 0]}>
       {/* base */}
       <mesh geometry={baseGeo} material={alu} rotation={[-Math.PI / 2, 0, 0]} position={[0, Tb / 2, 0]} />
       {/* speaker grille strip above the keys */}

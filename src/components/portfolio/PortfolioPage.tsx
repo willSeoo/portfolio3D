@@ -204,6 +204,7 @@ export function PortfolioPage() {
         }
         fitLayer(m.slotW, m.slotH, 1)
         heroZoom.value = DOCKED_MODEL_ZOOM
+        heroZoom.dock = 1
       } else {
         mode = 'zoom'
         const e = easeInOutSine(p)
@@ -231,6 +232,7 @@ export function PortfolioPage() {
         heroZoom.docked = d > 0.6
         setHeroLabel(d > 0.6)
         heroZoom.value = lerp(1, DOCKED_MODEL_ZOOM, e)
+        heroZoom.dock = e
       }
       syncActive()
     }
@@ -301,6 +303,7 @@ export function PortfolioPage() {
       revealIO.disconnect()
       st.kill()
       heroZoom.value = 1
+      heroZoom.dock = 0
       heroZoom.docked = false
     }
   }, [syncActive])
